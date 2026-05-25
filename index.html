@@ -1,0 +1,904 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sistema de Pasantías | Hotel Escuela de Los Andes Venezolanos</title>
+
+  <link rel="manifest" href="manifest.json" />
+  <meta name="theme-color" content="#991922" />
+  <meta name="background-color" content="#fffaf1" />
+  <link rel="apple-touch-icon" href="icons/icon-192.png" />
+
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <img src="hotelescuela.png" alt="Logo Hotel Escuela" class="logo" />
+      <div>
+        <h1>Sistema de Pasantías</h1>
+        <p>Hotel Escuela de Los Andes Venezolanos</p>
+      </div>
+    </div>
+
+    <nav class="nav-tabs">
+      <button class="tab-btn active" data-tab="registro">Registro</button>
+      <button class="tab-btn" data-tab="dashboard">Panel docente</button>
+    </nav>
+  </header>
+
+  <main class="container">
+    <section id="registro" class="tab-panel active">
+      <div class="hero-card">
+        <div>
+          <span class="eyebrow">Registro estudiantil</span>
+          <h2>Formulario de pasantías</h2>
+          <p>
+            El estudiante debe completar sus datos personales, académicos, familiares,
+            de salud y los datos de la empresa donde realizará sus pasantías.
+          </p>
+        </div>
+      </div>
+
+      <form id="studentForm" class="form-card" method="POST" target="hiddenFrame">
+        <input type="hidden" name="fotoBase64" id="fotoBase64" />
+        <input type="hidden" name="fotoFileName" id="fotoFileName" />
+
+        <section class="form-section">
+          <h3>1. Datos personales del estudiante</h3>
+          <div class="form-grid">
+            <div class="field">
+              <label for="fotoInput">Foto del estudiante</label>
+              <input type="file" id="fotoInput" accept="image/*" required />
+              <small>Sube una foto tipo carnet, fondo blanco, de frente, con uniforme. 
+Tamaño: 600 x 800 px. Formato JPG o PNG.</small>
+            </div>
+
+            <div class="field">
+              <label for="nombres">Apellidos y nombres completos</label>
+              <input type="text" id="nombres" name="nombres" required />
+            </div>
+
+            <div class="field">
+              <label for="cedula">Cédula de identidad</label>
+              <input type="text" id="cedula" name="cedula" placeholder="V-00.000.000" required />
+            </div>
+
+            <div class="field">
+              <label for="fechaNacimiento">Fecha de nacimiento</label>
+              <input type="date" id="fechaNacimiento" name="fechaNacimiento" required />
+            </div>
+
+            <div class="field">
+              <label for="edad">Edad</label>
+              <input type="number" id="edad" name="edad" min="0" max="120" required />
+            </div>
+
+            <div class="field">
+              <label for="nacionalidad">Nacionalidad</label>
+              <select id="nacionalidad" name="nacionalidad" required>
+                <option value="">Seleccione</option>
+                <option value="Venezolana">Venezolana</option>
+                <option value="Extranjera">Extranjera</option>
+                <option value="Otra">Otra</option>
+              </select>
+            </div>
+
+            <div class="field">
+              <label for="sexo">Sexo</label>
+              <select id="sexo" name="sexo" required>
+                <option value="">Seleccione</option>
+                <option value="Femenino">Femenino</option>
+                <option value="Masculino">Masculino</option>
+              </select>
+            </div>
+
+            <div class="field">
+              <label for="estadoCivil">Estado civil</label>
+              <select id="estadoCivil" name="estadoCivil" required>
+                <option value="">Seleccione</option>
+                <option value="Soltero/a">Soltero/a</option>
+                <option value="Casado/a">Casado/a</option>
+                <option value="Viudo/a">Viudo/a</option>
+                <option value="Otro">Otro</option>
+              </select>
+            </div>
+
+            <div class="field span-2">
+              <label for="direccionEstudiante">Dirección del estudiante</label>
+              <input type="text" id="direccionEstudiante" name="direccionEstudiante" required />
+            </div>
+
+            <div class="field">
+              <label for="telefono">Teléfono móvil</label>
+              <input type="text" id="telefono" name="telefono" placeholder="04xx-0000000" required />
+
+            </div>
+
+            <div class="field">
+              <label for="telefonoCantv">Teléfono CANTV</label>
+              <input type="text" id="telefonoCantv" name="telefonoCantv" placeholder="02xx-0000000" required />
+
+            </div>
+
+            <div class="field">
+              <label for="correo">E-mail personal</label>
+              <input type="email" id="correo" name="correo" required />
+            </div>
+
+            <div class="field">
+              <label for="correoInstitucional">E-mail institucional</label>
+              <input type="email" id="correoInstitucional" name="correoInstitucional" />
+            </div>
+
+            <div class="field">
+              <label for="instagram">Instagram</label>
+              <input type="text" id="instagram" name="instagram" placeholder="Ej: @usuario" required />
+            </div>
+          </div>
+        </section>
+
+        <section class="form-section">
+          <h3>2. Otro contacto de emergencia</h3>
+          <p class="section-note">Este contacto puede ser Familiar, Amigo o Pareja. (No debe ser ni la Madre, ni el Padre.)</p>
+          <div class="form-grid">
+            <div class="field">
+              <label for="contactoNombre">Nombre del contacto</label>
+              <input type="text" id="contactoNombre" name="contactoNombre" required />
+            </div>
+
+            <div class="field">
+              <label for="contactoTelefono">Teléfono del contacto</label>
+              <input type="tel" id="contactoTelefono" name="contactoTelefono" required />
+            </div>
+
+            <div class="field">
+              <label for="contactoCorreo">E-mail del contacto</label>
+              <input type="email" id="contactoCorreo" name="contactoCorreo" />
+            </div>
+
+            <div class="field">
+              <label for="contactoParentesco">Parentesco con usted</label>
+              <input type="text" id="contactoParentesco" name="contactoParentesco" required />
+            </div>
+          </div>
+        </section>
+
+        <section class="form-section">
+          <h3>3. Datos académicos complementarios</h3>
+          <p class="section-note">Indique estudios adicionales si aplica.</p>
+          <div class="form-grid">
+            <div class="field span-2">
+              <label for="otrosEstudios">Otros estudios realizados a nivel técnico o universitario</label>
+              <textarea id="otrosEstudios" name="otrosEstudios" rows="3" placeholder="Ej: TSU, Licenciatura, Diplomado..."></textarea>
+            </div>
+
+            <div class="field">
+              <label for="estudiosInstitucion">Institución</label>
+              <input type="text" id="estudiosInstitucion" name="estudiosInstitucion" />
+            </div>
+
+            <div class="field">
+              <label for="estudiosSemestreEgreso">Semestre cursante o fecha de egreso</label>
+              <input type="text" id="estudiosSemestreEgreso" name="estudiosSemestreEgreso" />
+            </div>
+
+            <div class="field span-2">
+              <label for="estudiosTitulo">Título alcanzado / por alcanzar</label>
+              <input type="text" id="estudiosTitulo" name="estudiosTitulo" />
+            </div>
+          </div>
+        </section>
+
+        <section class="form-section">
+          <h3>4. Cursos realizados</h3>
+          <div class="form-grid">
+            <div class="field span-2">
+              <label for="cursosRealizados">Cursos realizados más recientes</label>
+              <textarea id="cursosRealizados" name="cursosRealizados" rows="3" placeholder="Indique uno o varios cursos recientes"></textarea>
+            </div>
+
+            <div class="field">
+              <label for="cursosInstitucion">Institución</label>
+              <input type="text" id="cursosInstitucion" name="cursosInstitucion" />
+            </div>
+
+            <div class="field">
+              <label for="cursosFechaEgreso">Fecha de egreso</label>
+              <input type="text" id="cursosFechaEgreso" name="cursosFechaEgreso" />
+            </div>
+
+            <div class="field">
+              <label for="cursosCertificado">Certificado otorgado</label>
+              <select id="cursosCertificado" name="cursosCertificado">
+                <option value="">Seleccione</option>
+                <option value="SI">SI</option>
+                <option value="NO">NO</option>
+              </select>
+            </div>
+
+            <div class="field span-2 conditional-field hidden" id="grupoCursosCertificadoDetalle">
+              <label for="cursosCertificadoDetalle">Si posee certificado, indique el certificado otorgado</label>
+              <input type="text" id="cursosCertificadoDetalle" name="cursosCertificadoDetalle" />
+            </div>
+          </div>
+        </section>
+
+        <section class="form-section">
+          <h3>5. Datos de salud / seguro</h3>
+          <div class="form-grid">
+            <div class="field">
+              <label for="tipoSangre">Tipo de sangre</label>
+              <select id="tipoSangre" name="tipoSangre" required>
+                <option value="">Seleccione</option>
+              </select>
+            </div>
+
+            <div class="field">
+              <label for="alergico">¿Es alérgico?</label>
+              <select id="alergico" name="alergico" required>
+                <option value="">Seleccione</option>
+                <option value="SI">SI</option>
+                <option value="NO">NO</option>
+              </select>
+            </div>
+
+            <div class="field span-2 conditional-field hidden" id="grupoAlergiaDetalle">
+              <label for="alergiaDetalle">Si es alérgico, indique cuál</label>
+              <input type="text" id="alergiaDetalle" name="alergiaDetalle" />
+            </div>
+
+            <div class="field">
+              <label for="enfermedad">¿Padece alguna enfermedad?</label>
+              <select id="enfermedad" name="enfermedad" required>
+                <option value="">Seleccione</option>
+                <option value="SI">SI</option>
+                <option value="NO">NO</option>
+              </select>
+            </div>
+
+            <div class="field span-2 conditional-field hidden" id="grupoEnfermedadDetalle">
+              <label for="enfermedadDetalle">Si padece enfermedad, indique cuál</label>
+              <input type="text" id="enfermedadDetalle" name="enfermedadDetalle" />
+            </div>
+
+            <div class="field">
+              <label for="seguroVida">¿Posee seguro de vida?</label>
+              <select id="seguroVida" name="seguroVida" required>
+                <option value="">Seleccione</option>
+                <option value="SI">SI</option>
+                <option value="NO">NO</option>
+              </select>
+            </div>
+
+            <div class="field">
+              <label for="hcm">¿Posee HCM?</label>
+              <select id="hcm" name="hcm" required>
+                <option value="">Seleccione</option>
+                <option value="SI">SI</option>
+                <option value="NO">NO</option>
+              </select>
+            </div>
+
+            <div class="conditional-group hidden span-2" id="grupoSeguroDetalle">
+              <div class="field span-2">
+                <label for="aseguradoraPoliza">Si posee seguro de vida o HCM, indique empresa aseguradora y número de póliza</label>
+                <input type="text" id="aseguradoraPoliza" name="aseguradoraPoliza" />
+              </div>
+
+              <div class="field">
+                <label for="telefonoSeguro">Teléfono / celular del seguro</label>
+                <input type="tel" id="telefonoSeguro" name="telefonoSeguro" />
+              </div>
+
+              <div class="field">
+                <label for="correoSeguro">Correo electrónico del seguro</label>
+                <input type="email" id="correoSeguro" name="correoSeguro" />
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="form-section">
+          <h3>6. Datos personales de los padres</h3>
+          <h4>Madre</h4>
+          <div class="form-grid">
+            <div class="field span-2">
+              <label for="madreNombres">Apellidos y nombres de la madre</label>
+              <input type="text" id="madreNombres" name="madreNombres" required />
+            </div>
+
+            <div class="field">
+              <label for="madreTelefonoMovil">Teléfono móvil de la madre</label>
+              <input type="tel" id="madreTelefonoMovil" name="madreTelefonoMovil" required />
+            </div>
+
+            <div class="field">
+              <label for="madreTelefonoCantv">Teléfono CANTV de la madre</label>
+              <input type="tel" id="madreTelefonoCantv" name="madreTelefonoCantv" required />
+            </div>
+
+            <div class="field">
+              <label for="madreCorreo">E-mail de la madre</label>
+              <input type="email" id="madreCorreo" name="madreCorreo" required />
+            </div>
+
+            <div class="field">
+              <label for="madreDireccion">Dirección de la madre</label>
+              <input type="text" id="madreDireccion" name="madreDireccion" required />
+            </div>
+          </div>
+
+          <h4>Padre</h4>
+          <div class="form-grid">
+            <div class="field span-2">
+              <label for="padreNombres">Apellidos y nombres del padre</label>
+              <input type="text" id="padreNombres" name="padreNombres" required />
+            </div>
+
+            <div class="field">
+              <label for="padreTelefonoMovil">Teléfono móvil del padre</label>
+              <input type="tel" id="padreTelefonoMovil" name="padreTelefonoMovil" required />
+            </div>
+
+            <div class="field">
+              <label for="padreTelefonoCantv">Teléfono CANTV del padre</label>
+              <input type="tel" id="padreTelefonoCantv" name="padreTelefonoCantv" required />
+            </div>
+
+            <div class="field">
+              <label for="padreCorreo">E-mail del padre</label>
+              <input type="email" id="padreCorreo" name="padreCorreo" required />
+            </div>
+
+            <div class="field">
+              <label for="padreDireccion">Dirección del padre</label>
+              <input type="text" id="padreDireccion" name="padreDireccion" required />
+            </div>
+          </div>
+        </section>
+
+        <section class="form-section">
+          <h3>7. Idiomas que domina</h3>
+          <div class="language-table">
+            <div class="language-head">Idioma</div>
+            <div class="language-head">Lee</div>
+            <div class="language-head">Escribe</div>
+            <div class="language-head">Habla</div>
+
+            <div>Inglés</div>
+            <label><input type="checkbox" name="inglesLee" value="SI" /> Lee</label>
+            <label><input type="checkbox" name="inglesEscribe" value="SI" /> Escribe</label>
+            <label><input type="checkbox" name="inglesHabla" value="SI" /> Habla</label>
+
+            <div>Francés</div>
+            <label><input type="checkbox" name="francesLee" value="SI" /> Lee</label>
+            <label><input type="checkbox" name="francesEscribe" value="SI" /> Escribe</label>
+            <label><input type="checkbox" name="francesHabla" value="SI" /> Habla</label>
+
+            <div><input type="text" id="otroIdioma" name="otroIdioma" placeholder="Otro idioma" /></div>
+            <label><input type="checkbox" name="otroIdiomaLee" value="SI" /> Lee</label>
+            <label><input type="checkbox" name="otroIdiomaEscribe" value="SI" /> Escribe</label>
+            <label><input type="checkbox" name="otroIdiomaHabla" value="SI" /> Habla</label>
+          </div>
+        </section>
+
+        <section class="form-section">
+          <h3>8. Opción de pasantías</h3>
+          <div class="form-grid">
+            <div class="field">
+              <label for="carrera">Programa</label>
+              <select id="carrera" name="carrera" required>
+                <option value="">Seleccione un programa</option>
+              </select>
+            </div>
+
+            <div class="field">
+              <label for="trayecto">Semestre / trayecto</label>
+              <select id="trayecto" name="trayecto" required>
+                <option value="">Seleccione primero un programa</option>
+              </select>
+            </div>
+
+            <div class="field">
+              <label for="tipo">Tipo de pasantía</label>
+              <select id="tipo" name="tipo" required>
+                <option value="">Seleccione</option>
+              </select>
+            </div>
+
+            <div class="field">
+              <label for="tieneUnidadEmpresa">¿Ya tiene unidad o empresa donde hacer pasantías?</label>
+              <select id="tieneUnidadEmpresa" name="tieneUnidadEmpresa" required>
+                <option value="">Seleccione</option>
+                <option value="SI">SI</option>
+                <option value="NO">NO</option>
+                <option value="En espera">En espera</option>
+              </select>
+            </div>
+
+            <div class="conditional-group hidden span-2" id="grupoDatosEmpresa">
+              <div class="field">
+                <label for="estado">Estado</label>
+                <select id="estado" name="estado">
+                  <option value="">Seleccione un estado</option>
+                </select>
+              </div>
+
+              <div class="field">
+                <label for="ciudad">Ciudad</label>
+                <input type="text" id="ciudad" name="ciudad" />
+              </div>
+
+              <div class="field">
+                <label for="empresa">Unidad o empresa de pasantías</label>
+                <input type="text" id="empresa" name="empresa" />
+              </div>
+
+              <div class="field">
+                <label for="tutorEmpresarial">Tutor empresarial</label>
+                <input type="text" id="tutorEmpresarial" name="tutorEmpresarial" />
+              </div>
+
+              <div class="field">
+                <label for="telefonoEmpresa">Teléfono del tutor empresarial</label>
+                <input type="tel" id="telefonoEmpresa" name="telefonoEmpresa" />
+              </div>
+
+              <div class="field">
+                <label for="correoEmpresa">Correo de la empresa</label>
+                <input type="email" id="correoEmpresa" name="correoEmpresa" />
+              </div>
+            </div>
+
+            <div class="field">
+              <label for="fechaInicio">Fecha de inicio</label>
+              <input type="date" id="fechaInicio" name="fechaInicio" required />
+            </div>
+
+            <div class="field">
+              <label for="fechaFin">Fecha de culminación</label>
+              <input type="date" id="fechaFin" name="fechaFin" required />
+            </div>
+          </div>
+        </section>
+
+        <div class="form-actions">
+          <button type="submit" class="btn-primary">Revisar información</button>
+          <button type="reset" class="btn-secondary">Limpiar</button>
+        </div>
+      </form>
+
+      <iframe name="hiddenFrame" id="hiddenFrame" class="hidden-frame"></iframe>
+    </section>
+
+    <section id="dashboard" class="tab-panel">
+      <div class="dashboard-header">
+        <div>
+          <span class="eyebrow">Panel docente</span>
+          <h2>Seguimiento de pasantías</h2>
+          <p>Visualiza estudiantes por estado, tipo de pasantía y empresa.</p>
+        </div>
+
+        <div class="dashboard-actions">
+          <button id="btnActualizar" class="btn-primary">Actualizar datos</button>
+          <button id="btnAbrirGestionDocente" class="btn-secondary">Gestión docente</button>
+          <button id="btnAbrirLimpiarProceso" class="btn-danger">Limpiar proceso</button>
+          <button id="btnCerrarSesionDocente" class="btn-secondary">Cerrar acceso</button>
+        </div>
+      </div>
+
+      <section class="stats-grid">
+        <article class="stat-card">
+          <span>Total</span>
+          <strong id="statTotal">0</strong>
+          <small>Estudiantes registrados</small>
+        </article>
+
+        <article class="stat-card">
+          <span>Operativas</span>
+          <strong id="statOperativas">0</strong>
+          <small>Pasantías operativas</small>
+        </article>
+
+        <article class="stat-card">
+          <span>Administrativas</span>
+          <strong id="statAdministrativas">0</strong>
+          <small>Pasantías administrativas</small>
+        </article>
+
+        <article class="stat-card">
+          <span>Estados</span>
+          <strong id="statEstados">0</strong>
+          <small>Estados con pasantes</small>
+        </article>
+      </section>
+
+      <section class="filters-card">
+        <div class="field">
+          <label for="filterEstado">Filtrar por estado</label>
+          <select id="filterEstado">
+            <option value="">Todos los estados</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label for="filterTipo">Filtrar por tipo</label>
+          <select id="filterTipo">
+            <option value="">Todos</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label for="filterEstadoProceso">Estado del proceso</label>
+          <select id="filterEstadoProceso">
+            <option value="">Todos</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label for="filterTexto">Buscar estudiante, cédula o empresa</label>
+          <input type="search" id="filterTexto" placeholder="Nombre, cédula, empresa, ciudad..." />
+        </div>
+
+        <button id="btnLimpiarFiltros" class="btn-secondary">Limpiar filtros</button>
+      </section>
+
+      <section class="charts-grid">
+        <article class="panel chart-panel">
+          <div class="panel-head">
+            <div>
+              <h3>Gráfico por estados</h3>
+              <p>Distribución circular según los filtros activos.</p>
+            </div>
+          </div>
+          <div class="chart-content">
+            <div id="chartEstadosPie" class="pie-chart" role="img" aria-label="Gráfico circular por estados"></div>
+            <div id="chartEstadosLegend" class="chart-legend"></div>
+          </div>
+        </article>
+
+        <article class="panel chart-panel">
+          <div class="panel-head">
+            <div>
+              <h3>Gráfico por programa</h3>
+              <p>Comparativo entre Hotelería, PNFT u otros programas.</p>
+            </div>
+          </div>
+          <div class="chart-content">
+            <div id="chartProgramasPie" class="pie-chart" role="img" aria-label="Gráfico circular por programa"></div>
+            <div id="chartProgramasLegend" class="chart-legend"></div>
+          </div>
+        </article>
+      </section>
+
+      <section class="dashboard-grid">
+        <aside class="panel">
+          <div class="panel-head">
+            <div>
+              <h3>Venezuela por estados</h3>
+              <p>Selecciona un estado para ver sus estudiantes.</p>
+            </div>
+          </div>
+          <div id="estadoGrid" class="estado-grid"></div>
+        </aside>
+
+        <section class="panel">
+          <div class="panel-head">
+            <div>
+              <h3 id="listaTitulo">Estudiantes registrados</h3>
+              <p id="contadorLista">0 estudiantes</p>
+            </div>
+          </div>
+
+          <div id="studentList" class="student-list"></div>
+        </section>
+      </section>
+    </section>
+  </main>
+
+  <div id="studentModal" class="modal hidden">
+    <div class="modal-card">
+      <button id="btnCerrarModal" class="modal-close">×</button>
+      <div id="modalContent"></div>
+    </div>
+  </div>
+
+  <div id="loginModal" class="modal hidden">
+    <div class="login-card">
+      <button id="btnCerrarLogin" class="modal-close">×</button>
+      <div class="login-head">
+        <span class="eyebrow">Acceso restringido</span>
+        <h2>Panel docente</h2>
+        <p>Ingresa la contraseña para acceder al panel administrativo.</p>
+      </div>
+
+      <div class="field">
+        <label for="docentePassword">Contraseña</label>
+        <input type="password" id="docentePassword" placeholder="Ingrese la contraseña" />
+      </div>
+
+      <p id="loginError" class="login-error hidden">Contraseña incorrecta.</p>
+
+      <div class="form-actions login-actions">
+        <button id="btnCancelarLogin" type="button" class="btn-secondary">Cancelar</button>
+        <button id="btnIngresarLogin" type="button" class="btn-primary">Ingresar</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="confirmModal" class="modal hidden">
+    <div class="modal-card confirm-card">
+      <button id="btnCerrarConfirmacion" class="modal-close">×</button>
+      <div class="confirm-head">
+        <span class="eyebrow">Revisión antes de enviar</span>
+        <h2>Confirma tus datos</h2>
+        <p>Revisa cuidadosamente la información. Si algo está incorrecto, puedes volver al formulario para modificarlo.</p>
+      </div>
+
+      <div id="confirmContent"></div>
+
+      <div class="form-actions confirm-actions">
+        <button id="btnEditarRegistro" type="button" class="btn-secondary">Modificar datos</button>
+        <button id="btnEnviarConfirmado" type="button" class="btn-primary">Enviar registro</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="gestionModal" class="modal hidden">
+    <div class="modal-card gestion-card">
+      <button id="btnCerrarGestion" class="modal-close">×</button>
+      <div class="gestion-head">
+        <span class="eyebrow">Subaplicación docente</span>
+        <h2>Gestión y seguimiento</h2>
+        <p>Selecciona un estudiante y corrige datos personales, datos de pasantía, control docente y observaciones sin editar la hoja de cálculo.</p>
+      </div>
+
+      <div class="gestion-layout">
+        <aside class="gestion-sidebar">
+          <div class="field">
+            <label for="gestionBuscar">Buscar estudiante</label>
+            <input type="search" id="gestionBuscar" placeholder="Nombre, cédula o empresa" />
+          </div>
+          <div id="gestionLista" class="gestion-list"></div>
+        </aside>
+
+        <section class="gestion-editor">
+          <div id="gestionEditorVacio" class="empty-state">
+            Selecciona un estudiante para editar su seguimiento.
+          </div>
+
+          <form id="gestionForm" class="hidden">
+            <input type="hidden" id="gestionEstudianteId" />
+            <div id="gestionEstudianteResumen" class="gestion-student-summary"></div>
+
+            <section class="gestion-section">
+              <h3>Datos personales editables</h3>
+              <p class="section-note">La foto no se edita desde aquí. Si hay un error en los datos escritos, la docente puede corregirlos y guardar cambios.</p>
+              <div class="form-grid compact-grid">
+                <div class="field span-2">
+                  <label for="editNombres">Apellidos y nombres completos</label>
+                  <input type="text" id="editNombres" name="nombres" />
+                </div>
+                <div class="field">
+                  <label for="editCedula">Cédula de identidad</label>
+                  <input type="text" id="editCedula" name="cedula" placeholder="V-00.000.000" />
+                </div>
+                <div class="field">
+                  <label for="editFechaNacimiento">Fecha de nacimiento</label>
+                  <input type="date" id="editFechaNacimiento" name="fechaNacimiento" />
+                </div>
+                <div class="field">
+                  <label for="editEdad">Edad</label>
+                  <input type="number" id="editEdad" name="edad" min="0" max="120" />
+                </div>
+                <div class="field">
+                  <label for="editNacionalidad">Nacionalidad</label>
+                  <select id="editNacionalidad" name="nacionalidad">
+                    <option value="">Seleccione</option>
+                    <option value="Venezolana">Venezolana</option>
+                    <option value="Extranjera">Extranjera</option>
+                    <option value="Otra">Otra</option>
+                  </select>
+                </div>
+                <div class="field">
+                  <label for="editSexo">Sexo</label>
+                  <select id="editSexo" name="sexo">
+                    <option value="">Seleccione</option>
+                    <option value="Femenino">Femenino</option>
+                    <option value="Masculino">Masculino</option>
+                  </select>
+                </div>
+                <div class="field">
+                  <label for="editEstadoCivil">Estado civil</label>
+                  <select id="editEstadoCivil" name="estadoCivil">
+                    <option value="">Seleccione</option>
+                    <option value="Soltero/a">Soltero/a</option>
+                    <option value="Casado/a">Casado/a</option>
+                    <option value="Viudo/a">Viudo/a</option>
+                    <option value="Otro">Otro</option>
+                  </select>
+                </div>
+                <div class="field span-2">
+                  <label for="editDireccionEstudiante">Dirección del estudiante</label>
+                  <input type="text" id="editDireccionEstudiante" name="direccionEstudiante" />
+                </div>
+                <div class="field">
+                  <label for="editTelefono">Teléfono móvil</label>
+                  <input type="tel" id="editTelefono" name="telefono" />
+                </div>
+                <div class="field">
+                  <label for="editTelefonoCantv">Teléfono CANTV</label>
+                  <input type="tel" id="editTelefonoCantv" name="telefonoCantv" />
+                </div>
+                <div class="field">
+                  <label for="editCorreo">E-mail personal</label>
+                  <input type="email" id="editCorreo" name="correo" />
+                </div>
+                <div class="field">
+                  <label for="editCorreoInstitucional">E-mail institucional</label>
+                  <input type="email" id="editCorreoInstitucional" name="correoInstitucional" />
+                </div>
+                <div class="field">
+                  <label for="editInstagram">Instagram</label>
+                  <input type="text" id="editInstagram" name="instagram" placeholder="Ej: @usuario" />
+                </div>
+              </div>
+            </section>
+
+            <section class="gestion-section">
+              <h3>Datos de pasantía y empresa</h3>
+              <p class="section-note">Si el estudiante no tenía empresa al registrarse, la docente puede colocarla aquí cuando sea asignada o confirmada.</p>
+              <div class="form-grid compact-grid">
+                <div class="field">
+                  <label for="editCarrera">Programa</label>
+                  <select id="editCarrera" name="carrera"></select>
+                </div>
+                <div class="field">
+                  <label for="editTrayecto">Semestre / trayecto</label>
+                  <select id="editTrayecto" name="trayecto"></select>
+                </div>
+                <div class="field">
+                  <label for="editTipo">Tipo de pasantía</label>
+                  <select id="editTipo" name="tipo"></select>
+                </div>
+                <div class="field">
+                  <label for="editTieneUnidadEmpresa">¿Ya tiene unidad o empresa?</label>
+                  <select id="editTieneUnidadEmpresa" name="tieneUnidadEmpresa">
+                    <option value="">Seleccione</option>
+                    <option value="SI">SI</option>
+                    <option value="NO">NO</option>
+                    <option value="En espera">En espera</option>
+                  </select>
+                </div>
+                <div class="field">
+                  <label for="editEstado">Estado</label>
+                  <select id="editEstado" name="estado"></select>
+                </div>
+                <div class="field">
+                  <label for="editCiudad">Ciudad</label>
+                  <input type="text" id="editCiudad" name="ciudad" />
+                </div>
+                <div class="field span-2">
+                  <label for="editEmpresa">Unidad o empresa de pasantías</label>
+                  <input type="text" id="editEmpresa" name="empresa" />
+                </div>
+                <div class="field">
+                  <label for="editTutorEmpresarial">Tutor empresarial</label>
+                  <input type="text" id="editTutorEmpresarial" name="tutorEmpresarial" />
+                </div>
+                <div class="field">
+                  <label for="editTelefonoEmpresa">Teléfono del tutor empresarial</label>
+                  <input type="tel" id="editTelefonoEmpresa" name="telefonoEmpresa" />
+                </div>
+                <div class="field">
+                  <label for="editCorreoEmpresa">Correo de la empresa</label>
+                  <input type="email" id="editCorreoEmpresa" name="correoEmpresa" />
+                </div>
+                <div class="field">
+                  <label for="editFechaInicio">Fecha de inicio</label>
+                  <input type="date" id="editFechaInicio" name="fechaInicio" />
+                </div>
+                <div class="field">
+                  <label for="editFechaFin">Fecha de culminación</label>
+                  <input type="date" id="editFechaFin" name="fechaFin" />
+                </div>
+              </div>
+            </section>
+
+            <section class="gestion-section">
+              <h3>Control docente</h3>
+              <div class="form-grid compact-grid">
+                <div class="field">
+                  <label for="editEstadoProceso">Estado del proceso</label>
+                  <select id="editEstadoProceso" name="estadoProceso"></select>
+                </div>
+                <div class="field">
+                  <label for="editTutorAcademico">Tutor académico</label>
+                  <input type="text" id="editTutorAcademico" name="tutorAcademico" />
+                </div>
+                <div class="field span-2">
+                  <label for="editObservacionesDocentes">Observaciones docentes</label>
+                  <textarea id="editObservacionesDocentes" name="observacionesDocentes" rows="3"></textarea>
+                </div>
+              </div>
+            </section>
+
+            <section class="gestion-section">
+              <h3>Observaciones / eventualidades</h3>
+              <div class="form-grid compact-grid">
+                <div class="field span-2 observation-add-box">
+                  <label>Agregar nueva observación</label>
+                  <div class="observation-add-grid">
+                    <input type="date" id="editNuevaObservacionFecha" />
+                    <input type="text" id="editNuevaObservacionTexto" placeholder="Escribe la nueva observación" />
+                    <button type="button" id="btnAgregarObservacion" class="btn-secondary">Agregar observación</button>
+                  </div>
+                  <small>Se agregará al historial. Luego presiona Guardar cambios.</small>
+                </div>
+
+                <div class="field span-2">
+                  <label for="editObservacionesEventualidades">Historial de observaciones</label>
+                  <textarea id="editObservacionesEventualidades" name="observacionesEventualidades" rows="7" placeholder="Aquí se irá acumulando el historial de observaciones."></textarea>
+                </div>
+              </div>
+            </section>
+
+            <div class="form-actions gestion-actions">
+              <button type="button" id="btnCancelarGestion" class="btn-secondary">Cancelar</button>
+              <button type="submit" class="btn-primary">Guardar cambios</button>
+            </div>
+          </form>
+        </section>
+      </div>
+    </div>
+  </div>
+
+  <div id="limpiarProcesoModal" class="modal hidden">
+    <div class="login-card clean-card">
+      <button id="btnCerrarLimpiarProceso" class="modal-close">×</button>
+      <div class="login-head">
+        <span class="eyebrow">Acción delicada</span>
+        <h2>Limpiar proceso</h2>
+        <p>
+          Esto borrará todos los registros de estudiantes de la hoja <strong>Pasantias</strong>,
+          pero conservará los encabezados, configuración, programas, trayectos y estados.
+          Las fotos guardadas en Drive no se eliminarán automáticamente.
+        </p>
+      </div>
+
+      <div class="clean-warning">
+        <strong>Antes de continuar:</strong>
+        <p>Usa esta opción solo cuando ya haya terminado el proceso actual y quieras iniciar uno nuevo desde cero.</p>
+      </div>
+
+      <div class="field">
+        <label for="confirmarLimpiarProceso">Escribe LIMPIAR para confirmar</label>
+        <input type="text" id="confirmarLimpiarProceso" placeholder="LIMPIAR" autocomplete="off" />
+      </div>
+
+      <p id="limpiarProcesoError" class="login-error hidden">Debes escribir LIMPIAR para confirmar.</p>
+
+      <div class="form-actions login-actions">
+        <button id="btnCancelarLimpiarProceso" type="button" class="btn-secondary">Cancelar</button>
+        <button id="btnConfirmarLimpiarProceso" type="button" class="btn-danger">Sí, limpiar proceso</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="toast" class="toast hidden"></div>
+
+  <script src="config.js"></script>
+  <script src="app.js"></script>
+  <script>
+  if ("serviceWorker" in navigator) {
+    window.addEventListener("load", () => {
+      navigator.serviceWorker.register("./sw.js").catch((error) => {
+        console.error("Error registrando Service Worker:", error);
+      });
+    });
+  }
+</script>
+</body>
+</html>
