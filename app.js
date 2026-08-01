@@ -674,60 +674,76 @@ function enviarRegistroConfirmado() {
     return;
   }
 
-  if (apiConfigurada()) {
-    const btnEnviar = $("#btnEnviarConfirmado");
-    const textoOriginal = btnEnviar ? btnEnviar.textContent : 'Enviar';
+if (apiConfigurada()) {
+  const btnEnviar = $("#btnEnviarConfirmado");
+  const textoOriginal = btnEnviar ? btnEnviar.textContent : 'Enviar';
+  
+  if (btnEnviar) {
+    btnEnviar.disabled = true;
+    btnEnviar.textContent = 'Enviando...';
+    btnEnviar.style.opacity = '0.7';
+  }
 
-    // Deshabilitar botón y mostrar estado de carga
-    if (btnEnviar) {
-      btnEnviar.disabled = true;
-      btnEnviar.textContent = `Enviando... (intento 1 de ${MAX_REINTENTOS})`;
-      btnEnviar.style.opacity = '0.7';
-    }
+  (async () => {
+    try {
+      const datosEnvio = {
+        ...registroPendiente,
+        action: 'register',
+        timestamp: new Date().toISOString()
+      };
 
-    (async () => {
-      try {
-        if (!navigator.onLine) throw new Error('No hay conexión a internet');
+      let exito = false;
+      let ultimoError = null;
 
-        const datosEnvio = {
-          ...registroPendiente,
-          timestamp: new Date().toISOString() // Ayuda a evitar caché
-        };
+      for (let intento = 1; intento <= 3; intento++) {
+        try {
+          if (!navigator.onLine) throw new Error('Sin internet');
+          
+          const response = await fetch(CONFIG.APPS_SCRIPT_URL, {
+            method: 'POST',
+            body: JSON.stringify(datosEnvio),
+            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+            signal: AbortSignal.timeout(30000)
+          });
 
-        // Ejecutar envío con reintentos
-        await enviarFormularioConReintentos(datosEnvio);
+          if (!response.ok) throw new Error(`Error HTTP: ${response.status}`);
+          
+          exito = true;
+          break;
+        } catch (error) {
+          ultimoError = error;
+          if (intento < 3) {
+            await new Promise(r => setTimeout(r, 2000));
+          }
+        }
+      }
 
+      if (exito) {
         cerrarConfirmacion();
-        mostrarToast("✅ ¡Registro enviado correctamente!");
+        mostrarToast("✅ Registro enviado correctamente.");
         form.reset();
         poblarTrayectosPorPrograma("");
         registroPendiente = null;
-
         if (dashboardUnlocked) {
           setTimeout(() => cargarEstudiantes(), 1800);
         }
-      } catch (error) {
-        console.error("Error al enviar:", error);
-        let mensajeError = '❌ Error al enviar: ';
-        if (error.name === 'AbortError') {
-          mensajeError += 'La conexión tardó demasiado. Verifica tu internet e intenta de nuevo.';
-        } else if (error.message.includes('internet') || error.name === 'TypeError') {
-          mensajeError += 'Problema de conexión. Verifica tu internet e intenta de nuevo.';
-        } else {
-          mensajeError += 'No se pudo guardar la información. Intenta de nuevo en unos minutos.';
-        }
-        mostrarToast(mensajeError);
-      } finally {
-        // Restaurar botón siempre, haya éxito o fallo
-        if (btnEnviar) {
-          btnEnviar.disabled = false;
-          btnEnviar.textContent = textoOriginal;
-          btnEnviar.style.opacity = '1';
-        }
+      } else {
+        mostrarToast("❌ Error al enviar. Verifica tu internet e intenta de nuevo.");
       }
-    })();
-
-  } else {
+    } catch (error) {
+      console.error(error);
+      mostrarToast("❌ Ocurrió un error al enviar el registro.");
+    } finally {
+      if (btnEnviar) {
+        btnEnviar.disabled = false;
+        btnEnviar.textContent = textoOriginal;
+        btnEnviar.style.opacity = '1';
+      }
+    }
+  })();
+} 
+  
+  else {
     // Modo local (sin cambios)
     estudiantes = obtenerEstudiantesLocales();
     if (estudiantes.length === 0) estudiantes = [...DEMO_ESTUDIANTES];
