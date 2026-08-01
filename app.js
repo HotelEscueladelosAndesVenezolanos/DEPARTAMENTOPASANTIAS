@@ -256,12 +256,6 @@ let opcionesSistema = {
   estados: [...DEFAULT_ESTADOS_VENEZUELA]
 };
 
-// ==========================================
-// CONFIGURACIÓN DE REINTENTOS Y CONEXIÓN
-// ==========================================
-const MAX_REINTENTOS = 3;
-const TIEMPO_ESPERA_REINTENTO = 2000; // 2 segundos
-
 const $ = (selector) => document.querySelector(selector);
 const $$ = (selector) => document.querySelectorAll(selector);
 
@@ -636,36 +630,6 @@ function itemConfirmacion(label, value) {
   `;
 }
 
-// ==========================================
-// FUNCIÓN DE ENVÍO CON REINTENTOS AUTOMÁTICOS
-// ==========================================
-async function enviarFormularioConReintentos(datos, intento = 1) {
-  try {
-    if (!navigator.onLine) throw new Error('Sin conexión a internet');
-
-    const response = await fetch(CONFIG.APPS_SCRIPT_URL, {
-      method: 'POST',
-      body: JSON.stringify({ action: 'register', ...datos }),
-      headers: { 'Content-Type': 'text/plain;charset=utf-8' }, // Evita problemas de CORS en GAS
-      signal: AbortSignal.timeout(30000) // Timeout de 30 segundos
-    });
-
-    if (!response.ok) throw new Error(`Error HTTP: ${response.status}`);
-    
-    const resultado = await response.json();
-    return { exito: true, datos: resultado };
-
-  } catch (error) {
-    // Si es error de red y quedan reintentos, esperar y probar de nuevo
-    if ((error.name === 'TypeError' || error.name === 'AbortError' || error.message.includes('internet')) && intento < MAX_REINTENTOS) {
-      console.log(`Reintento ${intento + 1} de ${MAX_REINTENTOS}...`);
-      await new Promise(resolve => setTimeout(resolve, TIEMPO_ESPERA_REINTENTO));
-      return enviarFormularioConReintentos(datos, intento + 1);
-    }
-    throw error; // Si se agotan los reintentos o es otro error, lanzar
-  }
-}
-
 function enviarRegistroConfirmado() {
   const form = $("#studentForm");
 
@@ -674,89 +638,37 @@ function enviarRegistroConfirmado() {
     return;
   }
 
-if (apiConfigurada()) {
-  const btnEnviar = $("#btnEnviarConfirmado");
-  const textoOriginal = btnEnviar ? btnEnviar.textContent : 'Enviar';
-  
-  if (btnEnviar) {
-    btnEnviar.disabled = true;
-    btnEnviar.textContent = 'Enviando...';
-    btnEnviar.style.opacity = '0.7';
-  }
+  try {
+    if (apiConfigurada()) {
+      form.action = CONFIG.APPS_SCRIPT_URL;
+      HTMLFormElement.prototype.submit.call(form);
 
-  (async () => {
-    try {
-      const datosEnvio = {
-        ...registroPendiente,
-        action: 'register',
-        timestamp: new Date().toISOString()
-      };
+      cerrarConfirmacion();
+      mostrarToast("Registro enviado correctamente.");
+      form.reset();
+      poblarTrayectosPorPrograma("");
+      registroPendiente = null;
 
-      let exito = false;
-      let ultimoError = null;
-
-      for (let intento = 1; intento <= 3; intento++) {
-        try {
-          if (!navigator.onLine) throw new Error('Sin internet');
-          
-          const response = await fetch(CONFIG.APPS_SCRIPT_URL, {
-            method: 'POST',
-            body: JSON.stringify(datosEnvio),
-            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-            signal: AbortSignal.timeout(30000)
-          });
-
-          if (!response.ok) throw new Error(`Error HTTP: ${response.status}`);
-          
-          exito = true;
-          break;
-        } catch (error) {
-          ultimoError = error;
-          if (intento < 3) {
-            await new Promise(r => setTimeout(r, 2000));
-          }
-        }
+      if (dashboardUnlocked) {
+        setTimeout(() => cargarEstudiantes(), 1800);
       }
+    } else {
+      estudiantes = obtenerEstudiantesLocales();
+      if (estudiantes.length === 0) estudiantes = [...DEMO_ESTUDIANTES];
 
-      if (exito) {
-        cerrarConfirmacion();
-        mostrarToast("✅ Registro enviado correctamente.");
-        form.reset();
-        poblarTrayectosPorPrograma("");
-        registroPendiente = null;
-        if (dashboardUnlocked) {
-          setTimeout(() => cargarEstudiantes(), 1800);
-        }
-      } else {
-        mostrarToast("❌ Error al enviar. Verifica tu internet e intenta de nuevo.");
-      }
-    } catch (error) {
-      console.error(error);
-      mostrarToast("❌ Ocurrió un error al enviar el registro.");
-    } finally {
-      if (btnEnviar) {
-        btnEnviar.disabled = false;
-        btnEnviar.textContent = textoOriginal;
-        btnEnviar.style.opacity = '1';
-      }
+      estudiantes.unshift(registroPendiente);
+      guardarEstudiantesLocales(estudiantes);
+
+      cerrarConfirmacion();
+      form.reset();
+      poblarTrayectosPorPrograma("");
+      registroPendiente = null;
+      renderizarTodo();
+      mostrarToast("Registro guardado en modo local.");
     }
-  })();
-} 
-  
-  else {
-    // Modo local (sin cambios)
-    estudiantes = obtenerEstudiantesLocales();
-    if (estudiantes.length === 0) estudiantes = [...DEMO_ESTUDIANTES];
-
-    estudiantes.unshift(registroPendiente);
-    guardarEstudiantesLocales(estudiantes);
-
-    cerrarConfirmacion();
-    form.reset();
-    poblarTrayectosPorPrograma("");
-    registroPendiente = null;
-    renderizarTodo();
-    mostrarToast("Registro guardado en modo local.");
+  } catch (error) {
+    console.error(error);
+    mostrarToast("Ocurrió un error al enviar el registro.");
   }
 }
 
@@ -775,16 +687,6 @@ function configurarCamposCondicionales() {
   });
 
   actualizarDetalleSeguro();
-
-  // GARANTÍA: Quitar atributo required de todos los campos de los padres
-  const camposPadres = [
-    "madreNombres", "madreTelefonoMovil", "madreTelefonoCantv", "madreCorreo", "madreDireccion",
-    "padreNombres", "padreTelefonoMovil", "padreTelefonoCantv", "padreCorreo", "padreDireccion"
-  ];
-  camposPadres.forEach(id => {
-    const input = document.getElementById(id);
-    if (input) input.required = false;
-  });
 }
 
 function configurarDetalleSiNo(selectId, groupId, inputIds) {
@@ -1710,8 +1612,7 @@ async function convertirImagenABase64Reducida(file) {
           targetHeight
         );
 
-        // CAMBIO AQUÍ: De 0.85 a 0.4 para reducir drásticamente el peso y que suba rápido con internet lento
-        const base64 = canvas.toDataURL("image/jpeg", 0.4);
+        const base64 = canvas.toDataURL("image/jpeg", 0.85);
         resolve(base64);
       };
 
@@ -1769,46 +1670,13 @@ function escapeHTML(value) {
     .replaceAll("'", "&#039;");
 }
 
-// ==========================================
-// DETECCIÓN DE CONEXIÓN EN TIEMPO REAL
-// ==========================================
-window.addEventListener('online', () => {
-  console.log('✅ Conexión restablecida');
-  mostrarToast('✅ Conexión a internet restablecida');
-});
-
-window.addEventListener('offline', () => {
-  console.log('❌ Sin conexión');
-  mostrarToast('⚠️ Has perdido la conexión a internet');
-});
-
 window.abrirGestionDocente = abrirGestionDocente;
 
 // ==========================================
-// SOLUCIÓN FINAL: PEGAR AL FINAL DE app.js
+// BLOQUE FINAL - PEGAR AL FINAL DE app.js
 // ==========================================
 
-// 1. Forzar que los campos de padres NO sean obligatorios
-document.addEventListener("DOMContentLoaded", () => {
-  const camposPadres = [
-    "madreNombres", "madreTelefonoMovil", "madreTelefonoCantv", "madreCorreo", "madreDireccion",
-    "padreNombres", "padreTelefonoMovil", "padreTelefonoCantv", "padreCorreo", "padreDireccion"
-  ];
-  camposPadres.forEach(id => {
-    const input = document.getElementById(id);
-    if (input) input.required = false;
-  });
-
-  // 2. Re-asignar el evento de envío para garantizar que use la nueva función con reintentos
-  const btnEnviar = document.getElementById("btnEnviarConfirmado");
-  if (btnEnviar) {
-    const nuevoBtn = btnEnviar.cloneNode(true);
-    btnEnviar.parentNode.replaceChild(nuevoBtn, btnEnviar);
-    nuevoBtn.addEventListener("click", enviarRegistroConfirmado);
-  }
-});
-
-// 3. Sobrescribir la función de compresión de imagen (Calidad 0.4 = ~50KB, sube rapidísimo)
+// 1. Sobrescribe la compresión de imagen (0.4 = ~50KB, sube rápido)
 async function convertirImagenABase64Reducida(file) {
   if (!file) return "";
   return new Promise((resolve, reject) => {
@@ -1821,123 +1689,7 @@ async function convertirImagenABase64Reducida(file) {
         const targetRatio = targetWidth / targetHeight;
         let sourceX = 0, sourceY = 0, sourceWidth = img.width, sourceHeight = img.height;
         const sourceRatio = img.width / img.height;
-        if (sourceRatio > targetRatio) { sourceWidth = img.height * targetRatio; sourceX = (img.width - sourceWidth) / 2; } 
-        else { sourceHeight = img.width / targetRatio; sourceY = (img.height - sourceHeight) / 2; }
-        const canvas = document.createElement("canvas");
-        canvas.width = targetWidth;
-        canvas.height = targetHeight;
-        const ctx = canvas.getContext("2d");
-        ctx.fillStyle = "#ffffff";
-        ctx.fillRect(0, 0, targetWidth, targetHeight);
-        ctx.drawImage(img, sourceX, sourceY, sourceWidth, sourceHeight, 0, 0, targetWidth, targetHeight);
-        const base64 = canvas.toDataURL("image/jpeg", 0.4); // CAMBIO CLAVE: 0.4 en vez de 0.85
-        resolve(base64);
-      };
-      img.onerror = reject;
-      img.src = reader.result;
-    };
-    reader.onerror = reject;
-    reader.readAsDataURL(file);
-  });
-}
-
-// 4. Sobrescribir la función de envío con reintentos automáticos (evita el error de "preparar información")
-function enviarRegistroConfirmado() {
-  const form = document.getElementById("studentForm");
-  if (!registroPendiente) {
-    mostrarToast("No hay información pendiente por enviar.");
-    return;
-  }
-
-  if (typeof CONFIG !== "undefined" && CONFIG.APPS_SCRIPT_URL && !CONFIG.APPS_SCRIPT_URL.includes("PEGA_AQUI")) {
-    const btnEnviar = document.getElementById("btnEnviarConfirmado");
-    const textoOriginal = btnEnviar ? btnEnviar.textContent : 'Enviar';
-    
-    if (btnEnviar) {
-      btnEnviar.disabled = true;
-      btnEnviar.textContent = 'Enviando...';
-      btnEnviar.style.opacity = '0.7';
-    }
-
-    (async () => {
-      try {
-        const datosEnvio = { ...registroPendiente, action: 'register', timestamp: new Date().toISOString() };
-        let exito = false;
-
-        for (let intento = 1; intento <= 3; intento++) {
-          try {
-            if (!navigator.onLine) throw new Error('Sin internet');
-            const response = await fetch(CONFIG.APPS_SCRIPT_URL, {
-              method: 'POST',
-              body: JSON.stringify(datosEnvio),
-              headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-              signal: AbortSignal.timeout(30000)
-            });
-            if (!response.ok) throw new Error(`Error HTTP: ${response.status}`);
-            exito = true;
-            break;
-          } catch (error) {
-            if (intento < 3) await new Promise(r => setTimeout(r, 2000));
-          }
-        }
-
-        if (exito) {
-          document.getElementById("confirmModal").classList.add("hidden");
-          mostrarToast("✅ Registro enviado correctamente.");
-          form.reset();
-          if (typeof poblarTrayectosPorPrograma === "function") poblarTrayectosPorPrograma("");
-          registroPendiente = null;
-          if (typeof dashboardUnlocked !== "undefined" && dashboardUnlocked && typeof cargarEstudiantes === "function") {
-            setTimeout(() => cargarEstudiantes(), 1800);
-          }
-        } else {
-          mostrarToast("❌ Error al enviar. Verifica tu internet e intenta de nuevo.");
-        }
-      } catch (error) {
-        console.error(error);
-        mostrarToast("❌ Ocurrió un error al enviar el registro.");
-      } finally {
-        if (btnEnviar) {
-          btnEnviar.disabled = false;
-          btnEnviar.textContent = textoOriginal;
-          btnEnviar.style.opacity = '1';
-        }
-      }
-    })();
-  } else {
-    if (typeof obtenerEstudiantesLocales === "function") {
-      let estudiantesLocales = obtenerEstudiantesLocales();
-      if (estudiantesLocales.length === 0 && typeof DEMO_ESTUDIANTES !== "undefined") estudiantesLocales = [...DEMO_ESTUDIANTES];
-      estudiantesLocales.unshift(registroPendiente);
-      if (typeof guardarEstudiantesLocales === "function") guardarEstudiantesLocales(estudiantesLocales);
-    }
-    document.getElementById("confirmModal").classList.add("hidden");
-    form.reset();
-    if (typeof poblarTrayectosPorPrograma === "function") poblarTrayectosPorPrograma("");
-    registroPendiente = null;
-    if (typeof renderizarTodo === "function") renderizarTodo();
-    mostrarToast("Registro guardado en modo local.");
-  }
-}
-
-// ==========================================
-// SOLUCIÓN DEFINITIVA - PEGAR AL FINAL DE app.js
-// ==========================================
-
-// Sobrescribir función de compresión de imagen (calidad 0.4 = ~50KB)
-async function convertirImagenABase64Reducida(file) {
-  if (!file) return "";
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = () => {
-      const img = new Image();
-      img.onload = () => {
-        const targetWidth = 600;
-        const targetHeight = 800;
-        const targetRatio = targetWidth / targetHeight;
-        let sourceX = 0, sourceY = 0, sourceWidth = img.width, sourceHeight = img.height;
-        const sourceRatio = img.width / img.height;
-        if (sourceRatio > targetRatio) { sourceWidth = img.height * targetRatio; sourceX = (img.width - sourceWidth) / 2; } 
+        if (sourceRatio > targetRatio) { sourceWidth = img.height * targetRatio; sourceX = (img.width - sourceWidth) / 2; }
         else { sourceHeight = img.width / targetRatio; sourceY = (img.height - sourceHeight) / 2; }
         const canvas = document.createElement("canvas");
         canvas.width = targetWidth;
@@ -1957,50 +1709,51 @@ async function convertirImagenABase64Reducida(file) {
   });
 }
 
-// Sobrescribir función de envío con fetch, reintentos y fotoBase64
+// 2. Sobrescribe el envío: usa fetch con reintentos y envía fotoBase64 al backend
 function enviarRegistroConfirmado() {
   const form = document.getElementById("studentForm");
-  if (!window.registroPendiente) {
+  if (!registroPendiente) {
     if (typeof mostrarToast === "function") mostrarToast("No hay información pendiente por enviar.");
     return;
   }
 
   if (typeof CONFIG !== "undefined" && CONFIG.APPS_SCRIPT_URL && !CONFIG.APPS_SCRIPT_URL.includes("PEGA_AQUI")) {
     const btnEnviar = document.getElementById("btnEnviarConfirmado");
-    const textoOriginal = btnEnviar ? btnEnviar.textContent : 'Enviar';
-    
+    const textoOriginal = btnEnviar ? btnEnviar.textContent : "Enviar";
+
     if (btnEnviar) {
       btnEnviar.disabled = true;
-      btnEnviar.textContent = 'Enviando...';
-      btnEnviar.style.opacity = '0.7';
+      btnEnviar.textContent = "Enviando...";
+      btnEnviar.style.opacity = "0.7";
     }
 
     (async () => {
       try {
-        // CLAVE: Enviar fotoBase64 (no fotoUrl) para que el backend lo reciba
-        const datosEnvio = { 
-          ...window.registroPendiente, 
-          action: 'register',
-          fotoBase64: window.registroPendiente.fotoUrl || "",
-          timestamp: new Date().toISOString() 
+        // CLAVE: enviar fotoBase64 (el backend lo espera con ese nombre)
+        const datosEnvio = {
+          ...registroPendiente,
+          action: "register",
+          fotoBase64: registroPendiente.fotoUrl || "",
+          fotoFileName: document.getElementById("fotoFileName")?.value || "",
+          timestamp: new Date().toISOString()
         };
-        
+
         let exito = false;
 
         for (let intento = 1; intento <= 3; intento++) {
           try {
-            if (!navigator.onLine) throw new Error('Sin internet');
+            if (!navigator.onLine) throw new Error("Sin internet");
             const response = await fetch(CONFIG.APPS_SCRIPT_URL, {
-              method: 'POST',
+              method: "POST",
               body: JSON.stringify(datosEnvio),
-              headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+              headers: { "Content-Type": "text/plain;charset=utf-8" },
               signal: AbortSignal.timeout(60000)
             });
-            if (!response.ok) throw new Error(`Error HTTP: ${response.status}`);
+            if (!response.ok) throw new Error("Error HTTP: " + response.status);
             exito = true;
             break;
           } catch (error) {
-            if (intento < 3) await new Promise(r => setTimeout(r, 2000));
+            if (intento < 3) await new Promise((r) => setTimeout(r, 2000));
           }
         }
 
@@ -2009,47 +1762,46 @@ function enviarRegistroConfirmado() {
           if (typeof mostrarToast === "function") mostrarToast("✅ Registro enviado correctamente.");
           form.reset();
           if (typeof poblarTrayectosPorPrograma === "function") poblarTrayectosPorPrograma("");
-          window.registroPendiente = null;
-          if (typeof dashboardUnlocked !== "undefined" && dashboardUnlocked && typeof cargarEstudiantes === "function") {
+          registroPendiente = null;
+          if (dashboardUnlocked && typeof cargarEstudiantes === "function") {
             setTimeout(() => cargarEstudiantes(), 1800);
           }
         } else {
-          if (typeof mostrarToast === "function") mostrarToast("❌ Error al enviar. Verifica tu internet.");
+          if (typeof mostrarToast === "function") mostrarToast("❌ Error al enviar. Verifica tu internet e intenta de nuevo.");
         }
       } catch (error) {
         console.error(error);
-        if (typeof mostrarToast === "function") mostrarToast("❌ Error al enviar el registro.");
+        if (typeof mostrarToast === "function") mostrarToast(" Ocurrió un error al enviar el registro.");
       } finally {
         if (btnEnviar) {
           btnEnviar.disabled = false;
           btnEnviar.textContent = textoOriginal;
-          btnEnviar.style.opacity = '1';
+          btnEnviar.style.opacity = "1";
         }
       }
     })();
   } else {
-    if (typeof obtenerEstudiantesLocales === "function") {
-      let estudiantesLocales = obtenerEstudiantesLocales();
-      if (estudiantesLocales.length === 0 && typeof DEMO_ESTUDIANTES !== "undefined") estudiantesLocales = [...DEMO_ESTUDIANTES];
-      estudiantesLocales.unshift(window.registroPendiente);
-      if (typeof guardarEstudiantesLocales === "function") guardarEstudiantesLocales(estudiantesLocales);
-    }
+    // Modo local
+    estudiantes = typeof obtenerEstudiantesLocales === "function" ? obtenerEstudiantesLocales() : [];
+    if (estudiantes.length === 0) estudiantes = [...DEMO_ESTUDIANTES];
+    estudiantes.unshift(registroPendiente);
+    if (typeof guardarEstudiantesLocales === "function") guardarEstudiantesLocales(estudiantes);
     document.getElementById("confirmModal").classList.add("hidden");
     form.reset();
     if (typeof poblarTrayectosPorPrograma === "function") poblarTrayectosPorPrograma("");
-    window.registroPendiente = null;
+    registroPendiente = null;
     if (typeof renderizarTodo === "function") renderizarTodo();
     if (typeof mostrarToast === "function") mostrarToast("Registro guardado en modo local.");
   }
 }
 
-// Forzar que campos de padres no sean obligatorios
+// 3. Quitar required de los campos de padres al cargar la página
 document.addEventListener("DOMContentLoaded", () => {
   const camposPadres = [
     "madreNombres", "madreTelefonoMovil", "madreTelefonoCantv", "madreCorreo", "madreDireccion",
     "padreNombres", "padreTelefonoMovil", "padreTelefonoCantv", "padreCorreo", "padreDireccion"
   ];
-  camposPadres.forEach(id => {
+  camposPadres.forEach((id) => {
     const input = document.getElementById(id);
     if (input) input.required = false;
   });
