@@ -1919,3 +1919,91 @@ function enviarRegistroConfirmado() {
     mostrarToast("Registro guardado en modo local.");
   }
 }
+
+// ==========================================
+// CORRECCIÓN: Enviar fotoBase64 correctamente
+// ==========================================
+function enviarRegistroConfirmado() {
+  const form = document.getElementById("studentForm");
+  if (!window.registroPendiente) {
+    if (typeof mostrarToast === "function") mostrarToast("No hay información pendiente por enviar.");
+    return;
+  }
+
+  if (typeof CONFIG !== "undefined" && CONFIG.APPS_SCRIPT_URL && !CONFIG.APPS_SCRIPT_URL.includes("PEGA_AQUI")) {
+    const btnEnviar = document.getElementById("btnEnviarConfirmado");
+    const textoOriginal = btnEnviar ? btnEnviar.textContent : 'Enviar';
+    
+    if (btnEnviar) {
+      btnEnviar.disabled = true;
+      btnEnviar.textContent = 'Enviando foto y datos...';
+      btnEnviar.style.opacity = '0.7';
+    }
+
+    (async () => {
+      try {
+        // CORRECCIÓN CLAVE: Enviar fotoBase64 además de fotoUrl
+        const datosEnvio = { 
+          ...window.registroPendiente, 
+          action: 'register', 
+          fotoBase64: window.registroPendiente.fotoUrl || "", // El backend espera fotoBase64
+          timestamp: new Date().toISOString() 
+        };
+        
+        let exito = false;
+
+        for (let intento = 1; intento <= 3; intento++) {
+          try {
+            if (!navigator.onLine) throw new Error('Sin internet');
+            const response = await fetch(CONFIG.APPS_SCRIPT_URL, {
+              method: 'POST',
+              body: JSON.stringify(datosEnvio),
+              headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+              signal: AbortSignal.timeout(60000) // 60 segundos para fotos grandes
+            });
+            if (!response.ok) throw new Error(`Error HTTP: ${response.status}`);
+            exito = true;
+            break;
+          } catch (error) {
+            if (intento < 3) await new Promise(r => setTimeout(r, 2000));
+          }
+        }
+
+        if (exito) {
+          document.getElementById("confirmModal").classList.add("hidden");
+          if (typeof mostrarToast === "function") mostrarToast("✅ Registro y foto enviados correctamente.");
+          form.reset();
+          if (typeof poblarTrayectosPorPrograma === "function") poblarTrayectosPorPrograma("");
+          window.registroPendiente = null;
+          if (typeof dashboardUnlocked !== "undefined" && dashboardUnlocked && typeof cargarEstudiantes === "function") {
+            setTimeout(() => cargarEstudiantes(), 1800);
+          }
+        } else {
+          if (typeof mostrarToast === "function") mostrarToast("❌ Error al enviar. Verifica tu internet e intenta de nuevo.");
+        }
+      } catch (error) {
+        console.error(error);
+        if (typeof mostrarToast === "function") mostrarToast("❌ Ocurrió un error al enviar el registro.");
+      } finally {
+        if (btnEnviar) {
+          btnEnviar.disabled = false;
+          btnEnviar.textContent = textoOriginal;
+          btnEnviar.style.opacity = '1';
+        }
+      }
+    })();
+  } else {
+    if (typeof obtenerEstudiantesLocales === "function") {
+      let estudiantesLocales = obtenerEstudiantesLocales();
+      if (estudiantesLocales.length === 0 && typeof DEMO_ESTUDIANTES !== "undefined") estudiantesLocales = [...DEMO_ESTUDIANTES];
+      estudiantesLocales.unshift(window.registroPendiente);
+      if (typeof guardarEstudiantesLocales === "function") guardarEstudiantesLocales(estudiantesLocales);
+    }
+    document.getElementById("confirmModal").classList.add("hidden");
+    form.reset();
+    if (typeof poblarTrayectosPorPrograma === "function") poblarTrayectosPorPrograma("");
+    window.registroPendiente = null;
+    if (typeof renderizarTodo === "function") renderizarTodo();
+    if (typeof mostrarToast === "function") mostrarToast("Registro guardado en modo local.");
+  }
+}
