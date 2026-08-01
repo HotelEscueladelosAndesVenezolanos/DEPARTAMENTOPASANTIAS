@@ -1783,3 +1783,139 @@ window.addEventListener('offline', () => {
 });
 
 window.abrirGestionDocente = abrirGestionDocente;
+
+// ==========================================
+// SOLUCIÓN FINAL: PEGAR AL FINAL DE app.js
+// ==========================================
+
+// 1. Forzar que los campos de padres NO sean obligatorios
+document.addEventListener("DOMContentLoaded", () => {
+  const camposPadres = [
+    "madreNombres", "madreTelefonoMovil", "madreTelefonoCantv", "madreCorreo", "madreDireccion",
+    "padreNombres", "padreTelefonoMovil", "padreTelefonoCantv", "padreCorreo", "padreDireccion"
+  ];
+  camposPadres.forEach(id => {
+    const input = document.getElementById(id);
+    if (input) input.required = false;
+  });
+
+  // 2. Re-asignar el evento de envío para garantizar que use la nueva función con reintentos
+  const btnEnviar = document.getElementById("btnEnviarConfirmado");
+  if (btnEnviar) {
+    const nuevoBtn = btnEnviar.cloneNode(true);
+    btnEnviar.parentNode.replaceChild(nuevoBtn, btnEnviar);
+    nuevoBtn.addEventListener("click", enviarRegistroConfirmado);
+  }
+});
+
+// 3. Sobrescribir la función de compresión de imagen (Calidad 0.4 = ~50KB, sube rapidísimo)
+async function convertirImagenABase64Reducida(file) {
+  if (!file) return "";
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => {
+      const img = new Image();
+      img.onload = () => {
+        const targetWidth = 600;
+        const targetHeight = 800;
+        const targetRatio = targetWidth / targetHeight;
+        let sourceX = 0, sourceY = 0, sourceWidth = img.width, sourceHeight = img.height;
+        const sourceRatio = img.width / img.height;
+        if (sourceRatio > targetRatio) { sourceWidth = img.height * targetRatio; sourceX = (img.width - sourceWidth) / 2; } 
+        else { sourceHeight = img.width / targetRatio; sourceY = (img.height - sourceHeight) / 2; }
+        const canvas = document.createElement("canvas");
+        canvas.width = targetWidth;
+        canvas.height = targetHeight;
+        const ctx = canvas.getContext("2d");
+        ctx.fillStyle = "#ffffff";
+        ctx.fillRect(0, 0, targetWidth, targetHeight);
+        ctx.drawImage(img, sourceX, sourceY, sourceWidth, sourceHeight, 0, 0, targetWidth, targetHeight);
+        const base64 = canvas.toDataURL("image/jpeg", 0.4); // CAMBIO CLAVE: 0.4 en vez de 0.85
+        resolve(base64);
+      };
+      img.onerror = reject;
+      img.src = reader.result;
+    };
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+
+// 4. Sobrescribir la función de envío con reintentos automáticos (evita el error de "preparar información")
+function enviarRegistroConfirmado() {
+  const form = document.getElementById("studentForm");
+  if (!registroPendiente) {
+    mostrarToast("No hay información pendiente por enviar.");
+    return;
+  }
+
+  if (typeof CONFIG !== "undefined" && CONFIG.APPS_SCRIPT_URL && !CONFIG.APPS_SCRIPT_URL.includes("PEGA_AQUI")) {
+    const btnEnviar = document.getElementById("btnEnviarConfirmado");
+    const textoOriginal = btnEnviar ? btnEnviar.textContent : 'Enviar';
+    
+    if (btnEnviar) {
+      btnEnviar.disabled = true;
+      btnEnviar.textContent = 'Enviando...';
+      btnEnviar.style.opacity = '0.7';
+    }
+
+    (async () => {
+      try {
+        const datosEnvio = { ...registroPendiente, action: 'register', timestamp: new Date().toISOString() };
+        let exito = false;
+
+        for (let intento = 1; intento <= 3; intento++) {
+          try {
+            if (!navigator.onLine) throw new Error('Sin internet');
+            const response = await fetch(CONFIG.APPS_SCRIPT_URL, {
+              method: 'POST',
+              body: JSON.stringify(datosEnvio),
+              headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+              signal: AbortSignal.timeout(30000)
+            });
+            if (!response.ok) throw new Error(`Error HTTP: ${response.status}`);
+            exito = true;
+            break;
+          } catch (error) {
+            if (intento < 3) await new Promise(r => setTimeout(r, 2000));
+          }
+        }
+
+        if (exito) {
+          document.getElementById("confirmModal").classList.add("hidden");
+          mostrarToast("✅ Registro enviado correctamente.");
+          form.reset();
+          if (typeof poblarTrayectosPorPrograma === "function") poblarTrayectosPorPrograma("");
+          registroPendiente = null;
+          if (typeof dashboardUnlocked !== "undefined" && dashboardUnlocked && typeof cargarEstudiantes === "function") {
+            setTimeout(() => cargarEstudiantes(), 1800);
+          }
+        } else {
+          mostrarToast("❌ Error al enviar. Verifica tu internet e intenta de nuevo.");
+        }
+      } catch (error) {
+        console.error(error);
+        mostrarToast("❌ Ocurrió un error al enviar el registro.");
+      } finally {
+        if (btnEnviar) {
+          btnEnviar.disabled = false;
+          btnEnviar.textContent = textoOriginal;
+          btnEnviar.style.opacity = '1';
+        }
+      }
+    })();
+  } else {
+    if (typeof obtenerEstudiantesLocales === "function") {
+      let estudiantesLocales = obtenerEstudiantesLocales();
+      if (estudiantesLocales.length === 0 && typeof DEMO_ESTUDIANTES !== "undefined") estudiantesLocales = [...DEMO_ESTUDIANTES];
+      estudiantesLocales.unshift(registroPendiente);
+      if (typeof guardarEstudiantesLocales === "function") guardarEstudiantesLocales(estudiantesLocales);
+    }
+    document.getElementById("confirmModal").classList.add("hidden");
+    form.reset();
+    if (typeof poblarTrayectosPorPrograma === "function") poblarTrayectosPorPrograma("");
+    registroPendiente = null;
+    if (typeof renderizarTodo === "function") renderizarTodo();
+    mostrarToast("Registro guardado en modo local.");
+  }
+}
