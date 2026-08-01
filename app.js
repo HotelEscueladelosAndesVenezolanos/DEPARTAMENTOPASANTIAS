@@ -256,6 +256,12 @@ let opcionesSistema = {
   estados: [...DEFAULT_ESTADOS_VENEZUELA]
 };
 
+// ==========================================
+// CONFIGURACIÓN DE REINTENTOS Y CONEXIÓN
+// ==========================================
+const MAX_REINTENTOS = 3;
+const TIEMPO_ESPERA_REINTENTO = 2000; // 2 segundos
+
 const $ = (selector) => document.querySelector(selector);
 const $$ = (selector) => document.querySelectorAll(selector);
 
@@ -630,6 +636,36 @@ function itemConfirmacion(label, value) {
   `;
 }
 
+// ==========================================
+// FUNCIÓN DE ENVÍO CON REINTENTOS AUTOMÁTICOS
+// ==========================================
+async function enviarFormularioConReintentos(datos, intento = 1) {
+  try {
+    if (!navigator.onLine) throw new Error('Sin conexión a internet');
+
+    const response = await fetch(CONFIG.APPS_SCRIPT_URL, {
+      method: 'POST',
+      body: JSON.stringify({ action: 'register', ...datos }),
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' }, // Evita problemas de CORS en GAS
+      signal: AbortSignal.timeout(30000) // Timeout de 30 segundos
+    });
+
+    if (!response.ok) throw new Error(`Error HTTP: ${response.status}`);
+    
+    const resultado = await response.json();
+    return { exito: true, datos: resultado };
+
+  } catch (error) {
+    // Si es error de red y quedan reintentos, esperar y probar de nuevo
+    if ((error.name === 'TypeError' || error.name === 'AbortError' || error.message.includes('internet')) && intento < MAX_REINTENTOS) {
+      console.log(`Reintento ${intento + 1} de ${MAX_REINTENTOS}...`);
+      await new Promise(resolve => setTimeout(resolve, TIEMPO_ESPERA_REINTENTO));
+      return enviarFormularioConReintentos(datos, intento + 1);
+    }
+    throw error; // Si se agotan los reintentos o es otro error, lanzar
+  }
+}
+
 function enviarRegistroConfirmado() {
   const form = $("#studentForm");
 
@@ -638,37 +674,73 @@ function enviarRegistroConfirmado() {
     return;
   }
 
-  try {
-    if (apiConfigurada()) {
-      form.action = CONFIG.APPS_SCRIPT_URL;
-      HTMLFormElement.prototype.submit.call(form);
+  if (apiConfigurada()) {
+    const btnEnviar = $("#btnEnviarConfirmado");
+    const textoOriginal = btnEnviar ? btnEnviar.textContent : 'Enviar';
 
-      cerrarConfirmacion();
-      mostrarToast("Registro enviado correctamente.");
-      form.reset();
-      poblarTrayectosPorPrograma("");
-      registroPendiente = null;
-
-      if (dashboardUnlocked) {
-        setTimeout(() => cargarEstudiantes(), 1800);
-      }
-    } else {
-      estudiantes = obtenerEstudiantesLocales();
-      if (estudiantes.length === 0) estudiantes = [...DEMO_ESTUDIANTES];
-
-      estudiantes.unshift(registroPendiente);
-      guardarEstudiantesLocales(estudiantes);
-
-      cerrarConfirmacion();
-      form.reset();
-      poblarTrayectosPorPrograma("");
-      registroPendiente = null;
-      renderizarTodo();
-      mostrarToast("Registro guardado en modo local.");
+    // Deshabilitar botón y mostrar estado de carga
+    if (btnEnviar) {
+      btnEnviar.disabled = true;
+      btnEnviar.textContent = `Enviando... (intento 1 de ${MAX_REINTENTOS})`;
+      btnEnviar.style.opacity = '0.7';
     }
-  } catch (error) {
-    console.error(error);
-    mostrarToast("Ocurrió un error al enviar el registro.");
+
+    (async () => {
+      try {
+        if (!navigator.onLine) throw new Error('No hay conexión a internet');
+
+        const datosEnvio = {
+          ...registroPendiente,
+          timestamp: new Date().toISOString() // Ayuda a evitar caché
+        };
+
+        // Ejecutar envío con reintentos
+        await enviarFormularioConReintentos(datosEnvio);
+
+        cerrarConfirmacion();
+        mostrarToast("✅ ¡Registro enviado correctamente!");
+        form.reset();
+        poblarTrayectosPorPrograma("");
+        registroPendiente = null;
+
+        if (dashboardUnlocked) {
+          setTimeout(() => cargarEstudiantes(), 1800);
+        }
+      } catch (error) {
+        console.error("Error al enviar:", error);
+        let mensajeError = '❌ Error al enviar: ';
+        if (error.name === 'AbortError') {
+          mensajeError += 'La conexión tardó demasiado. Verifica tu internet e intenta de nuevo.';
+        } else if (error.message.includes('internet') || error.name === 'TypeError') {
+          mensajeError += 'Problema de conexión. Verifica tu internet e intenta de nuevo.';
+        } else {
+          mensajeError += 'No se pudo guardar la información. Intenta de nuevo en unos minutos.';
+        }
+        mostrarToast(mensajeError);
+      } finally {
+        // Restaurar botón siempre, haya éxito o fallo
+        if (btnEnviar) {
+          btnEnviar.disabled = false;
+          btnEnviar.textContent = textoOriginal;
+          btnEnviar.style.opacity = '1';
+        }
+      }
+    })();
+
+  } else {
+    // Modo local (sin cambios)
+    estudiantes = obtenerEstudiantesLocales();
+    if (estudiantes.length === 0) estudiantes = [...DEMO_ESTUDIANTES];
+
+    estudiantes.unshift(registroPendiente);
+    guardarEstudiantesLocales(estudiantes);
+
+    cerrarConfirmacion();
+    form.reset();
+    poblarTrayectosPorPrograma("");
+    registroPendiente = null;
+    renderizarTodo();
+    mostrarToast("Registro guardado en modo local.");
   }
 }
 
@@ -687,6 +759,16 @@ function configurarCamposCondicionales() {
   });
 
   actualizarDetalleSeguro();
+
+  // GARANTÍA: Quitar atributo required de todos los campos de los padres
+  const camposPadres = [
+    "madreNombres", "madreTelefonoMovil", "madreTelefonoCantv", "madreCorreo", "madreDireccion",
+    "padreNombres", "padreTelefonoMovil", "padreTelefonoCantv", "padreCorreo", "padreDireccion"
+  ];
+  camposPadres.forEach(id => {
+    const input = document.getElementById(id);
+    if (input) input.required = false;
+  });
 }
 
 function configurarDetalleSiNo(selectId, groupId, inputIds) {
@@ -1669,5 +1751,18 @@ function escapeHTML(value) {
     .replaceAll('"', "&quot;")
     .replaceAll("'", "&#039;");
 }
+
+// ==========================================
+// DETECCIÓN DE CONEXIÓN EN TIEMPO REAL
+// ==========================================
+window.addEventListener('online', () => {
+  console.log('✅ Conexión restablecida');
+  mostrarToast('✅ Conexión a internet restablecida');
+});
+
+window.addEventListener('offline', () => {
+  console.log('❌ Sin conexión');
+  mostrarToast('⚠️ Has perdido la conexión a internet');
+});
 
 window.abrirGestionDocente = abrirGestionDocente;
