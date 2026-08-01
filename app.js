@@ -1921,8 +1921,43 @@ function enviarRegistroConfirmado() {
 }
 
 // ==========================================
-// CORRECCIÓN: Enviar fotoBase64 correctamente
+// SOLUCIÓN DEFINITIVA - PEGAR AL FINAL DE app.js
 // ==========================================
+
+// Sobrescribir función de compresión de imagen (calidad 0.4 = ~50KB)
+async function convertirImagenABase64Reducida(file) {
+  if (!file) return "";
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => {
+      const img = new Image();
+      img.onload = () => {
+        const targetWidth = 600;
+        const targetHeight = 800;
+        const targetRatio = targetWidth / targetHeight;
+        let sourceX = 0, sourceY = 0, sourceWidth = img.width, sourceHeight = img.height;
+        const sourceRatio = img.width / img.height;
+        if (sourceRatio > targetRatio) { sourceWidth = img.height * targetRatio; sourceX = (img.width - sourceWidth) / 2; } 
+        else { sourceHeight = img.width / targetRatio; sourceY = (img.height - sourceHeight) / 2; }
+        const canvas = document.createElement("canvas");
+        canvas.width = targetWidth;
+        canvas.height = targetHeight;
+        const ctx = canvas.getContext("2d");
+        ctx.fillStyle = "#ffffff";
+        ctx.fillRect(0, 0, targetWidth, targetHeight);
+        ctx.drawImage(img, sourceX, sourceY, sourceWidth, sourceHeight, 0, 0, targetWidth, targetHeight);
+        const base64 = canvas.toDataURL("image/jpeg", 0.4);
+        resolve(base64);
+      };
+      img.onerror = reject;
+      img.src = reader.result;
+    };
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+
+// Sobrescribir función de envío con fetch, reintentos y fotoBase64
 function enviarRegistroConfirmado() {
   const form = document.getElementById("studentForm");
   if (!window.registroPendiente) {
@@ -1936,17 +1971,17 @@ function enviarRegistroConfirmado() {
     
     if (btnEnviar) {
       btnEnviar.disabled = true;
-      btnEnviar.textContent = 'Enviando foto y datos...';
+      btnEnviar.textContent = 'Enviando...';
       btnEnviar.style.opacity = '0.7';
     }
 
     (async () => {
       try {
-        // CORRECCIÓN CLAVE: Enviar fotoBase64 además de fotoUrl
+        // CLAVE: Enviar fotoBase64 (no fotoUrl) para que el backend lo reciba
         const datosEnvio = { 
           ...window.registroPendiente, 
-          action: 'register', 
-          fotoBase64: window.registroPendiente.fotoUrl || "", // El backend espera fotoBase64
+          action: 'register',
+          fotoBase64: window.registroPendiente.fotoUrl || "",
           timestamp: new Date().toISOString() 
         };
         
@@ -1959,7 +1994,7 @@ function enviarRegistroConfirmado() {
               method: 'POST',
               body: JSON.stringify(datosEnvio),
               headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-              signal: AbortSignal.timeout(60000) // 60 segundos para fotos grandes
+              signal: AbortSignal.timeout(60000)
             });
             if (!response.ok) throw new Error(`Error HTTP: ${response.status}`);
             exito = true;
@@ -1971,7 +2006,7 @@ function enviarRegistroConfirmado() {
 
         if (exito) {
           document.getElementById("confirmModal").classList.add("hidden");
-          if (typeof mostrarToast === "function") mostrarToast("✅ Registro y foto enviados correctamente.");
+          if (typeof mostrarToast === "function") mostrarToast("✅ Registro enviado correctamente.");
           form.reset();
           if (typeof poblarTrayectosPorPrograma === "function") poblarTrayectosPorPrograma("");
           window.registroPendiente = null;
@@ -1979,11 +2014,11 @@ function enviarRegistroConfirmado() {
             setTimeout(() => cargarEstudiantes(), 1800);
           }
         } else {
-          if (typeof mostrarToast === "function") mostrarToast("❌ Error al enviar. Verifica tu internet e intenta de nuevo.");
+          if (typeof mostrarToast === "function") mostrarToast("❌ Error al enviar. Verifica tu internet.");
         }
       } catch (error) {
         console.error(error);
-        if (typeof mostrarToast === "function") mostrarToast("❌ Ocurrió un error al enviar el registro.");
+        if (typeof mostrarToast === "function") mostrarToast("❌ Error al enviar el registro.");
       } finally {
         if (btnEnviar) {
           btnEnviar.disabled = false;
@@ -2007,3 +2042,15 @@ function enviarRegistroConfirmado() {
     if (typeof mostrarToast === "function") mostrarToast("Registro guardado en modo local.");
   }
 }
+
+// Forzar que campos de padres no sean obligatorios
+document.addEventListener("DOMContentLoaded", () => {
+  const camposPadres = [
+    "madreNombres", "madreTelefonoMovil", "madreTelefonoCantv", "madreCorreo", "madreDireccion",
+    "padreNombres", "padreTelefonoMovil", "padreTelefonoCantv", "padreCorreo", "padreDireccion"
+  ];
+  camposPadres.forEach(id => {
+    const input = document.getElementById(id);
+    if (input) input.required = false;
+  });
+});
