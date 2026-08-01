@@ -1694,7 +1694,8 @@ async function convertirImagenABase64Reducida(file) {
           targetHeight
         );
 
-        const base64 = canvas.toDataURL("image/jpeg", 0.85);
+        // CAMBIO AQUÍ: De 0.85 a 0.4 para reducir drásticamente el peso y que suba rápido con internet lento
+        const base64 = canvas.toDataURL("image/jpeg", 0.4);
         resolve(base64);
       };
 
