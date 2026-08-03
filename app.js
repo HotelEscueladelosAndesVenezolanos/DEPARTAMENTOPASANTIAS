@@ -630,48 +630,6 @@ function itemConfirmacion(label, value) {
   `;
 }
 
-function enviarRegistroConfirmado() {
-  const form = $("#studentForm");
-
-  if (!registroPendiente) {
-    mostrarToast("No hay información pendiente por enviar.");
-    return;
-  }
-
-  try {
-    if (apiConfigurada()) {
-      form.action = CONFIG.APPS_SCRIPT_URL;
-      HTMLFormElement.prototype.submit.call(form);
-
-      cerrarConfirmacion();
-      mostrarToast("Registro enviado correctamente.");
-      form.reset();
-      poblarTrayectosPorPrograma("");
-      registroPendiente = null;
-
-      if (dashboardUnlocked) {
-        setTimeout(() => cargarEstudiantes(), 1800);
-      }
-    } else {
-      estudiantes = obtenerEstudiantesLocales();
-      if (estudiantes.length === 0) estudiantes = [...DEMO_ESTUDIANTES];
-
-      estudiantes.unshift(registroPendiente);
-      guardarEstudiantesLocales(estudiantes);
-
-      cerrarConfirmacion();
-      form.reset();
-      poblarTrayectosPorPrograma("");
-      registroPendiente = null;
-      renderizarTodo();
-      mostrarToast("Registro guardado en modo local.");
-    }
-  } catch (error) {
-    console.error(error);
-    mostrarToast("Ocurrió un error al enviar el registro.");
-  }
-}
-
 function configurarCamposCondicionales() {
   configurarDetalleSiNo("alergico", "grupoAlergiaDetalle", ["alergiaDetalle"]);
   configurarDetalleSiNo("enfermedad", "grupoEnfermedadDetalle", ["enfermedadDetalle"]);
@@ -1709,100 +1667,162 @@ async function convertirImagenABase64Reducida(file) {
   });
 }
 
-// 2. Sobrescribe el envío: usa fetch con reintentos y envía fotoBase64 al backend
 function enviarRegistroConfirmado() {
-  const form = document.getElementById("studentForm");
+  const form = $("#studentForm");
   if (!registroPendiente) {
-    if (typeof mostrarToast === "function") mostrarToast("No hay información pendiente por enviar.");
+    mostrarToast("No hay información pendiente por enviar.");
     return;
   }
 
-  if (typeof CONFIG !== "undefined" && CONFIG.APPS_SCRIPT_URL && !CONFIG.APPS_SCRIPT_URL.includes("PEGA_AQUI")) {
-    const btnEnviar = document.getElementById("btnEnviarConfirmado");
-    const textoOriginal = btnEnviar ? btnEnviar.textContent : "Enviar";
-
+  if (apiConfigurada()) {
+    const btnEnviar = $("#btnEnviarConfirmado");
+    const textoOriginal = btnEnviar ? btnEnviar.textContent : 'Enviar';
+    
     if (btnEnviar) {
       btnEnviar.disabled = true;
-      btnEnviar.textContent = "Enviando...";
-      btnEnviar.style.opacity = "0.7";
+      btnEnviar.textContent = 'Enviando...';
+      btnEnviar.style.opacity = '0.7';
     }
 
     (async () => {
       try {
-        // CLAVE: enviar fotoBase64 (el backend lo espera con ese nombre)
+        // Preparar datos para enviar
         const datosEnvio = {
-          ...registroPendiente,
-          action: "register",
-          fotoBase64: registroPendiente.fotoUrl || "",
-          fotoFileName: document.getElementById("fotoFileName")?.value || "",
+          action: 'register',
+          id: registroPendiente.id,
+          fechaRegistro: registroPendiente.fechaRegistro,
+          fotoUrl: registroPendiente.fotoUrl,
+          fotoBase64: registroPendiente.fotoUrl, // El backend espera esto
+          fotoFileName: $("#fotoFileName")?.value || "",
+          nombres: registroPendiente.nombres,
+          cedula: registroPendiente.cedula,
+          fechaNacimiento: registroPendiente.fechaNacimiento,
+          edad: registroPendiente.edad,
+          nacionalidad: registroPendiente.nacionalidad,
+          sexo: registroPendiente.sexo,
+          estadoCivil: registroPendiente.estadoCivil,
+          direccionEstudiante: registroPendiente.direccionEstudiante,
+          telefono: registroPendiente.telefono,
+          telefonoCantv: registroPendiente.telefonoCantv,
+          correo: registroPendiente.correo,
+          correoInstitucional: registroPendiente.correoInstitucional,
+          instagram: registroPendiente.instagram,
+          contactoNombre: registroPendiente.contactoNombre,
+          contactoTelefono: registroPendiente.contactoTelefono,
+          contactoCorreo: registroPendiente.contactoCorreo,
+          contactoParentesco: registroPendiente.contactoParentesco,
+          otrosEstudios: registroPendiente.otrosEstudios,
+          estudiosInstitucion: registroPendiente.estudiosInstitucion,
+          estudiosSemestreEgreso: registroPendiente.estudiosSemestreEgreso,
+          estudiosTitulo: registroPendiente.estudiosTitulo,
+          cursosRealizados: registroPendiente.cursosRealizados,
+          cursosInstitucion: registroPendiente.cursosInstitucion,
+          cursosFechaEgreso: registroPendiente.cursosFechaEgreso,
+          cursosCertificado: registroPendiente.cursosCertificado,
+          cursosCertificadoDetalle: registroPendiente.cursosCertificadoDetalle,
+          tipoSangre: registroPendiente.tipoSangre,
+          alergico: registroPendiente.alergico,
+          alergiaDetalle: registroPendiente.alergiaDetalle,
+          enfermedad: registroPendiente.enfermedad,
+          enfermedadDetalle: registroPendiente.enfermedadDetalle,
+          seguroVida: registroPendiente.seguroVida,
+          hcm: registroPendiente.hcm,
+          aseguradoraPoliza: registroPendiente.aseguradoraPoliza,
+          telefonoSeguro: registroPendiente.telefonoSeguro,
+          correoSeguro: registroPendiente.correoSeguro,
+          madreNombres: registroPendiente.madreNombres,
+          madreTelefonoMovil: registroPendiente.madreTelefonoMovil,
+          madreTelefonoCantv: registroPendiente.madreTelefonoCantv,
+          madreCorreo: registroPendiente.madreCorreo,
+          madreDireccion: registroPendiente.madreDireccion,
+          padreNombres: registroPendiente.padreNombres,
+          padreTelefonoMovil: registroPendiente.padreTelefonoMovil,
+          padreTelefonoCantv: registroPendiente.padreTelefonoCantv,
+          padreCorreo: registroPendiente.padreCorreo,
+          padreDireccion: registroPendiente.padreDireccion,
+          inglesLee: registroPendiente.inglesLee,
+          inglesEscribe: registroPendiente.inglesEscribe,
+          inglesHabla: registroPendiente.inglesHabla,
+          francesLee: registroPendiente.francesLee,
+          francesEscribe: registroPendiente.francesEscribe,
+          francesHabla: registroPendiente.francesHabla,
+          otroIdioma: registroPendiente.otroIdioma,
+          otroIdiomaLee: registroPendiente.otroIdiomaLee,
+          otroIdiomaEscribe: registroPendiente.otroIdiomaEscribe,
+          otroIdiomaHabla: registroPendiente.otroIdiomaHabla,
+          carrera: registroPendiente.carrera,
+          trayecto: registroPendiente.trayecto,
+          tipo: registroPendiente.tipo,
+          tieneUnidadEmpresa: registroPendiente.tieneUnidadEmpresa,
+          estado: registroPendiente.estado,
+          ciudad: registroPendiente.ciudad,
+          empresa: registroPendiente.empresa,
+          tutorEmpresarial: registroPendiente.tutorEmpresarial,
+          telefonoEmpresa: registroPendiente.telefonoEmpresa,
+          correoEmpresa: registroPendiente.correoEmpresa,
+          fechaInicio: registroPendiente.fechaInicio,
+          fechaFin: registroPendiente.fechaFin,
           timestamp: new Date().toISOString()
         };
 
         let exito = false;
+        let ultimoError = null;
 
+        // 3 reintentos
         for (let intento = 1; intento <= 3; intento++) {
           try {
-            if (!navigator.onLine) throw new Error("Sin internet");
+            if (!navigator.onLine) throw new Error('Sin internet');
+            
             const response = await fetch(CONFIG.APPS_SCRIPT_URL, {
-              method: "POST",
+              method: 'POST',
               body: JSON.stringify(datosEnvio),
-              headers: { "Content-Type": "text/plain;charset=utf-8" },
+              headers: { 'Content-Type': 'text/plain;charset=utf-8' },
               signal: AbortSignal.timeout(60000)
             });
-            if (!response.ok) throw new Error("Error HTTP: " + response.status);
+
+            if (!response.ok) throw new Error(`Error HTTP: ${response.status}`);
+            
             exito = true;
             break;
           } catch (error) {
-            if (intento < 3) await new Promise((r) => setTimeout(r, 2000));
+            ultimoError = error;
+            if (intento < 3) await new Promise(r => setTimeout(r, 2000));
           }
         }
 
         if (exito) {
-          document.getElementById("confirmModal").classList.add("hidden");
-          if (typeof mostrarToast === "function") mostrarToast("✅ Registro enviado correctamente.");
+          $("#confirmModal").classList.add("hidden");
+          mostrarToast("✅ Registro enviado correctamente.");
           form.reset();
-          if (typeof poblarTrayectosPorPrograma === "function") poblarTrayectosPorPrograma("");
+          poblarTrayectosPorPrograma("");
           registroPendiente = null;
-          if (dashboardUnlocked && typeof cargarEstudiantes === "function") {
-            setTimeout(() => cargarEstudiantes(), 1800);
-          }
+          if (dashboardUnlocked) setTimeout(() => cargarEstudiantes(), 1800);
         } else {
-          if (typeof mostrarToast === "function") mostrarToast("❌ Error al enviar. Verifica tu internet e intenta de nuevo.");
+          mostrarToast("❌ Error al enviar. Verifica tu internet e intenta de nuevo.");
+          console.error("Último error:", ultimoError);
         }
       } catch (error) {
-        console.error(error);
-        if (typeof mostrarToast === "function") mostrarToast(" Ocurrió un error al enviar el registro.");
+        console.error("Error:", error);
+        mostrarToast(" Ocurrió un error al enviar el registro.");
       } finally {
         if (btnEnviar) {
           btnEnviar.disabled = false;
           btnEnviar.textContent = textoOriginal;
-          btnEnviar.style.opacity = "1";
+          btnEnviar.style.opacity = '1';
         }
       }
     })();
   } else {
     // Modo local
-    estudiantes = typeof obtenerEstudiantesLocales === "function" ? obtenerEstudiantesLocales() : [];
+    estudiantes = obtenerEstudiantesLocales();
     if (estudiantes.length === 0) estudiantes = [...DEMO_ESTUDIANTES];
     estudiantes.unshift(registroPendiente);
-    if (typeof guardarEstudiantesLocales === "function") guardarEstudiantesLocales(estudiantes);
-    document.getElementById("confirmModal").classList.add("hidden");
+    guardarEstudiantesLocales(estudiantes);
+    $("#confirmModal").classList.add("hidden");
     form.reset();
-    if (typeof poblarTrayectosPorPrograma === "function") poblarTrayectosPorPrograma("");
+    poblarTrayectosPorPrograma("");
     registroPendiente = null;
-    if (typeof renderizarTodo === "function") renderizarTodo();
-    if (typeof mostrarToast === "function") mostrarToast("Registro guardado en modo local.");
+    renderizarTodo();
+    mostrarToast("Registro guardado en modo local.");
   }
 }
-
-// 3. Quitar required de los campos de padres al cargar la página
-document.addEventListener("DOMContentLoaded", () => {
-  const camposPadres = [
-    "madreNombres", "madreTelefonoMovil", "madreTelefonoCantv", "madreCorreo", "madreDireccion",
-    "padreNombres", "padreTelefonoMovil", "padreTelefonoCantv", "padreCorreo", "padreDireccion"
-  ];
-  camposPadres.forEach((id) => {
-    const input = document.getElementById(id);
-    if (input) input.required = false;
-  });
-});
