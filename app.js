@@ -1,30 +1,13 @@
-// ==========================================
-// CONSTANTES Y CONFIGURACIÓN GLOBAL
-// ==========================================
-const DEFAULT_ESTADOS_VENEZUELA = [
-  "Amazonas", "Anzoátegui", "Apure", "Aragua", "Barinas", "Bolívar",
-  "Carabobo", "Cojedes", "Delta Amacuro", "Distrito Capital", "Falcón",
-  "Guárico", "Lara", "Mérida", "Miranda", "Monagas", "Nueva Esparta",
-  "Portuguesa", "Sucre", "Táchira", "Trujillo", "La Guaira", "Yaracuy", "Zulia"
-];
-
+const DEFAULT_ESTADOS_VENEZUELA = ["Amazonas", "Anzoátegui", "Apure", "Aragua", "Barinas", "Bolívar", "Carabobo", "Cojedes", "Delta Amacuro", "Distrito Capital", "Falcón", "Guárico", "Lara", "Mérida", "Miranda", "Monagas", "Nueva Esparta", "Portuguesa", "Sucre", "Táchira", "Trujillo", "La Guaira", "Yaracuy", "Zulia"];
 const DEFAULT_PROGRAMAS = ["Hotelería", "PNFT"];
-const DEFAULT_TRAYECTOS = [
-  { programa: "Hotelería", trayecto: "3er Semestre - Hotelería" },
-  { programa: "Hotelería", trayecto: "6to Semestre - Hotelería" },
-  { programa: "PNFT", trayecto: "2do Trayecto - PNFT" },
-  { programa: "PNFT", trayecto: "4to Trayecto - PNFT" }
-];
-
+const DEFAULT_TRAYECTOS = [{ programa: "Hotelería", trayecto: "3er Semestre - Hotelería" }, { programa: "Hotelería", trayecto: "6to Semestre - Hotelería" }, { programa: "PNFT", trayecto: "2do Trayecto - PNFT" }, { programa: "PNFT", trayecto: "4to Trayecto - PNFT" }];
 const DEFAULT_TIPOS_SANGRE = ["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"];
 const DEFAULT_TIPOS_PASANTIA = ["Operativa", "Administrativa"];
-
 const ESTADOS_PROCESO = ["Registrado", "En revisión", "Aprobado", "En pasantías", "Culminado", "Rechazado", "Con observación"];
 const OPCIONES_EMPRESA_APROBADA = ["En revisión", "SI", "NO"];
 const OPCIONES_RESULTADO_FINAL = ["Pendiente", "Aprobado", "No aprobado"];
-
 const STORAGE_KEY = "hotelEscuelaPasantias_v5";
-const DRAFT_KEY = "hotelEscuelaPasantias_draft_v1"; // CLAVE PARA EL BORRADOR AUTOMÁTICO
+const DRAFT_KEY = "hotelEscuelaPasantias_draft_v1";
 const DOCENTE_AUTH_KEY = "hotelEscuelaDocenteAuth_v1";
 const DOCENTE_PASSWORD_KEY = "hotelEscuelaDocentePassword_v1";
 
@@ -32,7 +15,6 @@ const CONTROL_DOCENTE_FIELDS = ["estadoProceso", "tutorAcademico", "empresaAprob
 const GESTION_DATOS_PERSONALES_FIELDS = ["nombres", "cedula", "fechaNacimiento", "edad", "nacionalidad", "sexo", "estadoCivil", "direccionEstudiante", "telefono", "telefonoCantv", "correo", "correoInstitucional", "instagram"];
 const GESTION_PASANTIA_EMPRESA_FIELDS = ["carrera", "trayecto", "tipo", "tieneUnidadEmpresa", "estado", "ciudad", "empresa", "tutorEmpresarial", "telefonoEmpresa", "correoEmpresa", "fechaInicio", "fechaFin"];
 const GESTION_EDITABLE_FIELDS = [...GESTION_DATOS_PERSONALES_FIELDS, ...GESTION_PASANTIA_EMPRESA_FIELDS, ...CONTROL_DOCENTE_FIELDS];
-
 const CHART_COLORS = ["#991922", "#c99e2d", "#bb852f", "#6f1118", "#d8b84a", "#8a4b22", "#b63b45", "#e7c66a", "#5f5f5f", "#3d3d3d"];
 
 const FIELD_LABELS = {
@@ -40,25 +22,14 @@ const FIELD_LABELS = {
 };
 
 const ALL_FIELDS = Object.keys(FIELD_LABELS);
-
-const DEMO_ESTUDIANTES = [{
-  id: "demo-1", fechaRegistro: "2025-01-10T10:00:00", fotoUrl: "", nombres: "María González", cedula: "V-12.345.678", fechaNacimiento: "2004-04-12", edad: "21", nacionalidad: "Venezolana", sexo: "Femenino", estadoCivil: "Soltero/a", direccionEstudiante: "Mérida, Venezuela", telefono: "0414-0000000", telefonoCantv: "0274-0000000", correo: "maria.demo@email.com", correoInstitucional: "maria@unatur.edu.ve", instagram: "@mariademo", contactoNombre: "Laura Pérez", contactoTelefono: "0412-1111111", contactoCorreo: "laura@email.com", contactoParentesco: "Tía", carrera: "Hotelería", trayecto: "3er Semestre - Hotelería", tipoSangre: "O+", alergico: "NO", enfermedad: "NO", seguroVida: "NO", hcm: "NO", madreNombres: "Carmen González", madreTelefonoMovil: "0414-2222222", madreTelefonoCantv: "0274-2222222", madreCorreo: "carmen@email.com", madreDireccion: "Mérida", padreNombres: "José González", padreTelefonoMovil: "0414-3333333", padreTelefonoCantv: "0274-3333333", padreCorreo: "jose@email.com", padreDireccion: "Mérida", inglesLee: "SI", inglesEscribe: "SI", inglesHabla: "SI", tipo: "Administrativa", tieneUnidadEmpresa: "SI", estado: "Mérida", ciudad: "Mérida", empresa: "Hotel Mérida Plaza", tutorEmpresarial: "Laura Pérez", telefonoEmpresa: "0274-0000000", correoEmpresa: "contacto@hotelmerida.com", fechaInicio: "2025-02-01", fechaFin: "2025-04-30", estadoProceso: "Registrado", empresaAprobada: "En revisión", horasRequeridas: "320", horasCumplidas: "0", resultadoFinal: "Pendiente"
-}];
+const DEMO_ESTUDIANTES = [{ id: "demo-1", fechaRegistro: "2025-01-10T10:00:00", fotoUrl: "", nombres: "María González", cedula: "V-12.345.678", fechaNacimiento: "2004-04-12", edad: "21", nacionalidad: "Venezolana", sexo: "Femenino", estadoCivil: "Soltero/a", direccionEstudiante: "Mérida, Venezuela", telefono: "0414-0000000", telefonoCantv: "0274-0000000", correo: "maria.demo@email.com", correoInstitucional: "maria@unatur.edu.ve", instagram: "@mariademo", contactoNombre: "Laura Pérez", contactoTelefono: "0412-1111111", contactoCorreo: "laura@email.com", contactoParentesco: "Tía", carrera: "Hotelería", trayecto: "3er Semestre - Hotelería", tipoSangre: "O+", alergico: "NO", enfermedad: "NO", seguroVida: "NO", hcm: "NO", madreNombres: "Carmen González", madreTelefonoMovil: "0414-2222222", madreTelefonoCantv: "0274-2222222", madreCorreo: "carmen@email.com", madreDireccion: "Mérida", padreNombres: "José González", padreTelefonoMovil: "0414-3333333", padreTelefonoCantv: "0274-3333333", padreCorreo: "jose@email.com", padreDireccion: "Mérida", inglesLee: "SI", inglesEscribe: "SI", inglesHabla: "SI", tipo: "Administrativa", tieneUnidadEmpresa: "SI", estado: "Mérida", ciudad: "Mérida", empresa: "Hotel Mérida Plaza", tutorEmpresarial: "Laura Pérez", telefonoEmpresa: "0274-0000000", correoEmpresa: "contacto@hotelmerida.com", fechaInicio: "2025-02-01", fechaFin: "2025-04-30", estadoProceso: "Registrado", empresaAprobada: "En revisión", horasRequeridas: "320", horasCumplidas: "0", resultadoFinal: "Pendiente" }];
 
 let estudiantes = [];
 let estadoSeleccionado = "";
 let estudianteGestionSeleccionadoId = "";
 let dashboardUnlocked = false;
 let registroPendiente = null;
-
-let opcionesSistema = {
-  configuracion: {},
-  programas: [...DEFAULT_PROGRAMAS],
-  trayectos: [...DEFAULT_TRAYECTOS],
-  tiposSangre: [...DEFAULT_TIPOS_SANGRE],
-  tiposPasantia: [...DEFAULT_TIPOS_PASANTIA],
-  estados: [...DEFAULT_ESTADOS_VENEZUELA]
-};
+let opcionesSistema = { configuracion: {}, programas: [...DEFAULT_PROGRAMAS], trayectos: [...DEFAULT_TRAYECTOS], tiposSangre: [...DEFAULT_TIPOS_SANGRE], tiposPasantia: [...DEFAULT_TIPOS_PASANTIA], estados: [...DEFAULT_ESTADOS_VENEZUELA] };
 
 const $ = (selector) => document.querySelector(selector);
 const $$ = (selector) => document.querySelectorAll(selector);
@@ -66,7 +37,7 @@ const $$ = (selector) => document.querySelectorAll(selector);
 document.addEventListener("DOMContentLoaded", iniciarApp);
 
 // ==========================================
-// FUNCIONES DE BORRADOR AUTOMÁTICO (Req 2, 3, 4, 5)
+// 2, 3, 4 y 5: BORRADOR AUTOMÁTICO, RECUPERACIÓN, ALERTA Y LIMPIEZA
 // ==========================================
 function guardarBorrador() {
   const form = $("#studentForm");
@@ -74,13 +45,9 @@ function guardarBorrador() {
   const draft = {};
   Array.from(form.elements).forEach(el => {
     if (el.name && el.type !== 'submit' && el.type !== 'reset' && el.type !== 'button' && el.id !== 'fotoInput') {
-      if (el.type === 'checkbox') {
-        draft[el.name] = el.checked ? el.value : "";
-      } else if (el.type === 'radio') {
-        if (el.checked) draft[el.name] = el.value;
-      } else {
-        draft[el.name] = el.value;
-      }
+      if (el.type === 'checkbox') draft[el.name] = el.checked ? el.value : "";
+      else if (el.type === 'radio') { if (el.checked) draft[el.name] = el.value; }
+      else draft[el.name] = el.value;
     }
   });
   draft.fotoBase64 = $("#fotoBase64")?.value || "";
@@ -95,51 +62,30 @@ function cargarBorrador() {
     const draft = JSON.parse(draftStr);
     const form = $("#studentForm");
     if (!form) return;
-    
     Object.keys(draft).forEach(key => {
       const el = form.elements[key];
       if (el) {
-        if (el.type === 'checkbox') {
-          el.checked = (draft[key] === el.value);
-        } else if (el.type === 'radio') {
-          if (el.value === draft[key]) el.checked = true;
-        } else {
-          el.value = draft[key];
-        }
+        if (el.type === 'checkbox') el.checked = (draft[key] === el.value);
+        else if (el.type === 'radio') { if (el.value === draft[key]) el.checked = true; }
+        else el.value = draft[key];
       }
     });
-    
-    // Disparar eventos para que se muestren los campos condicionales correctamente
     setTimeout(() => {
-      $("#alergico")?.dispatchEvent(new Event('change'));
-      $("#enfermedad")?.dispatchEvent(new Event('change'));
-      $("#cursosCertificado")?.dispatchEvent(new Event('change'));
-      $("#tieneUnidadEmpresa")?.dispatchEvent(new Event('change'));
-      $("#seguroVida")?.dispatchEvent(new Event('change'));
-      $("#hcm")?.dispatchEvent(new Event('change'));
+      ["alergico", "enfermedad", "cursosCertificado", "tieneUnidadEmpresa", "seguroVida", "hcm"].forEach(id => {
+        $(`#${id}`)?.dispatchEvent(new Event('change'));
+      });
     }, 100);
-  } catch (e) {
-    console.error("Error cargando borrador", e);
-    localStorage.removeItem(DRAFT_KEY);
-  }
+  } catch (e) { localStorage.removeItem(DRAFT_KEY); }
 }
 
 function tieneBorrador() {
   const draftStr = localStorage.getItem(DRAFT_KEY);
   if (!draftStr) return false;
-  try {
-    const draft = JSON.parse(draftStr);
-    return Object.values(draft).some(v => v !== "" && v !== false && v !== null);
-  } catch {
-    return false;
-  }
+  try { return Object.values(JSON.parse(draftStr)).some(v => v !== "" && v !== false && v !== null); } catch { return false; }
 }
 
-function limpiarBorrador() {
-  localStorage.removeItem(DRAFT_KEY);
-}
+function limpiarBorrador() { localStorage.removeItem(DRAFT_KEY); }
 
-// 4. ALERTA DE CIERRE DE PESTAÑA
 window.addEventListener("beforeunload", (event) => {
   if (tieneBorrador()) {
     event.preventDefault();
@@ -149,7 +95,7 @@ window.addEventListener("beforeunload", (event) => {
 });
 
 // ==========================================
-// INICIALIZACIÓN DE LA APP
+// INICIALIZACIÓN
 // ==========================================
 async function iniciarApp() {
   dashboardUnlocked = sessionStorage.getItem(DOCENTE_AUTH_KEY) === "true" && Boolean(sessionStorage.getItem(DOCENTE_PASSWORD_KEY));
@@ -165,18 +111,11 @@ async function iniciarApp() {
   configurarCamposCondicionales();
   configurarGestionDocente();
   configurarLimpiezaProceso();
-
-  if (dashboardUnlocked || !apiConfigurada()) {
-    await cargarEstudiantes();
-  } else {
-    estudiantes = [];
-    renderizarTodo();
-  }
+  if (dashboardUnlocked || !apiConfigurada()) { await cargarEstudiantes(); }
+  else { estudiantes = []; renderizarTodo(); }
 }
 
-function apiConfigurada() {
-  return typeof CONFIG !== "undefined" && CONFIG.APPS_SCRIPT_URL && !CONFIG.APPS_SCRIPT_URL.includes("PEGA_AQUI");
-}
+function apiConfigurada() { return typeof CONFIG !== "undefined" && CONFIG.APPS_SCRIPT_URL && !CONFIG.APPS_SCRIPT_URL.includes("PEGA_AQUI"); }
 
 async function cargarOpcionesSistema() {
   if (!apiConfigurada()) return;
@@ -184,27 +123,15 @@ async function cargarOpcionesSistema() {
     const respuesta = await cargarJSONP(CONFIG.APPS_SCRIPT_URL, { action: "options" });
     if (!respuesta.ok || !respuesta.opciones) throw new Error(respuesta.message || "No se pudieron cargar las opciones.");
     opcionesSistema = normalizarOpciones(respuesta.opciones);
-  } catch (error) {
-    console.error(error);
-    mostrarToast("No se pudieron cargar las opciones desde Sheets. Se usarán opciones locales.");
-  }
+  } catch (error) { console.error(error); mostrarToast("No se pudieron cargar las opciones desde Sheets. Se usarán opciones locales."); }
 }
 
 function normalizarOpciones(opciones) {
   const trayectos = Array.isArray(opciones.trayectos) ? opciones.trayectos.map((item) => ({ programa: item.programa || "", trayecto: item.trayecto || item.value || "" })) : [...DEFAULT_TRAYECTOS];
-  return {
-    configuracion: opciones.configuracion || {},
-    programas: arrayNoVacio(opciones.programas, DEFAULT_PROGRAMAS),
-    trayectos: trayectos.length ? trayectos : [...DEFAULT_TRAYECTOS],
-    tiposSangre: arrayNoVacio(opciones.tiposSangre, DEFAULT_TIPOS_SANGRE),
-    tiposPasantia: arrayNoVacio(opciones.tiposPasantia, DEFAULT_TIPOS_PASANTIA),
-    estados: arrayNoVacio(opciones.estados, DEFAULT_ESTADOS_VENEZUELA)
-  };
+  return { configuracion: opciones.configuracion || {}, programas: arrayNoVacio(opciones.programas, DEFAULT_PROGRAMAS), trayectos: trayectos.length ? trayectos : [...DEFAULT_TRAYECTOS], tiposSangre: arrayNoVacio(opciones.tiposSangre, DEFAULT_TIPOS_SANGRE), tiposPasantia: arrayNoVacio(opciones.tiposPasantia, DEFAULT_TIPOS_PASANTIA), estados: arrayNoVacio(opciones.estados, DEFAULT_ESTADOS_VENEZUELA) };
 }
 
-function arrayNoVacio(valor, respaldo) {
-  return Array.isArray(valor) && valor.length ? valor : [...respaldo];
-}
+function arrayNoVacio(valor, respaldo) { return Array.isArray(valor) && valor.length ? valor : [...respaldo]; }
 
 function aplicarTextosConfiguracion() {
   const config = opcionesSistema.configuracion || {};
@@ -244,15 +171,13 @@ function poblarTiposSangre() {
 }
 
 function poblarTiposPasantia() {
-  const tipoSelect = $("#tipo");
-  const filterTipo = $("#filterTipo");
+  const tipoSelect = $("#tipo"); const filterTipo = $("#filterTipo");
   if (tipoSelect) { limpiarSelect(tipoSelect, "Seleccione"); opcionesSistema.tiposPasantia.forEach((tipo) => agregarOption(tipoSelect, tipo, tipo)); }
   if (filterTipo) { limpiarSelect(filterTipo, "Todos"); opcionesSistema.tiposPasantia.forEach((tipo) => agregarOption(filterTipo, tipo, tipo)); }
 }
 
 function poblarEstados() {
-  const estadoSelect = $("#estado");
-  const filterEstado = $("#filterEstado");
+  const estadoSelect = $("#estado"); const filterEstado = $("#filterEstado");
   if (estadoSelect) { limpiarSelect(estadoSelect, "Seleccione un estado"); opcionesSistema.estados.forEach((estado) => agregarOption(estadoSelect, estado, estado)); }
   if (filterEstado) { limpiarSelect(filterEstado, "Todos los estados"); opcionesSistema.estados.forEach((estado) => agregarOption(filterEstado, estado, estado)); }
 }
@@ -274,15 +199,13 @@ function poblarSelectSimple(id, opciones, placeholder = "Seleccione") {
 function limpiarSelect(select, placeholder) {
   select.innerHTML = "";
   const option = document.createElement("option");
-  option.value = "";
-  option.textContent = placeholder;
+  option.value = ""; option.textContent = placeholder;
   select.appendChild(option);
 }
 
 function agregarOption(select, value, text) {
   const option = document.createElement("option");
-  option.value = value;
-  option.textContent = text;
+  option.value = value; option.textContent = text;
   select.appendChild(option);
 }
 
@@ -311,7 +234,6 @@ function poblarTrayectosGestionPorPrograma(programa, selectedValue = "") {
 }
 
 function campoGestionId(field) { return `edit${field.charAt(0).toUpperCase()}${field.slice(1)}`; }
-
 function valorParaInputGestion(estudiante, field) {
   if (["fechaNacimiento", "fechaInicio", "fechaFin", "fechaRevision"].includes(field)) return normalizarFechaInput(estudiante[field]);
   return estudiante[field] || "";
@@ -340,7 +262,7 @@ function configurarFormulario() {
   const form = $("#studentForm");
   if (!form) return;
 
-  // 2. BORRADOR AUTOMÁTICO: Guardar en cada interacción
+  // 2. BORRADOR AUTOMÁTICO
   form.addEventListener("input", guardarBorrador);
   form.addEventListener("change", guardarBorrador);
 
@@ -353,15 +275,12 @@ function configurarFormulario() {
       if (fotoInput && fotoInput.files && fotoInput.files[0]) {
         fotoBase64 = await convertirImagenABase64Reducida(fotoInput.files[0]);
       }
-      
       $("#fotoBase64").value = fotoBase64 || "";
       $("#fotoFileName").value = fotoInput.files[0]?.name || "";
-
       const datos = obtenerDatosFormulario(form);
       datos.id = generarId();
       datos.fechaRegistro = new Date().toISOString();
       datos.fotoUrl = fotoBase64 || "";
-
       registroPendiente = normalizarEstudiante(datos);
       abrirConfirmacion(registroPendiente);
     } catch (error) {
@@ -371,7 +290,6 @@ function configurarFormulario() {
   });
 
   $("#btnActualizar")?.addEventListener("click", cargarEstudiantes);
-
   form.addEventListener("reset", () => {
     setTimeout(() => {
       poblarTrayectosPorPrograma("");
@@ -424,14 +342,11 @@ function cerrarConfirmacion() { $("#confirmModal").classList.add("hidden"); }
 function itemConfirmacion(label, value) { return `<div class="confirm-item"><span>${escapeHTML(label)}</span><strong>${escapeHTML(value || "No registrado")}</strong></div>`; }
 
 // ==========================================
-// ENVÍO ROBUSTO CON REINTENTOS (Req 1, 5, 6)
+// 1 y 6: ENVÍO ROBUSTO CON BLOQUEO, REINTENTOS Y CAMPOS VACÍOS SEGUROS
 // ==========================================
 function enviarRegistroConfirmado() {
   const form = $("#studentForm");
-  if (!registroPendiente) {
-    mostrarToast("No hay información pendiente por enviar.");
-    return;
-  }
+  if (!registroPendiente) { mostrarToast("No hay información pendiente por enviar."); return; }
 
   if (apiConfigurada()) {
     const btnEnviar = $("#btnEnviarConfirmado");
@@ -469,33 +384,25 @@ function enviarRegistroConfirmado() {
         for (let intento = 1; intento <= 3; intento++) {
           try {
             if (!navigator.onLine) throw new Error('Sin conexión a internet');
-            
             const response = await fetch(CONFIG.APPS_SCRIPT_URL, {
               method: 'POST',
               body: JSON.stringify(datosEnvio),
               headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-              signal: AbortSignal.timeout(60000) // 60 segundos de timeout generoso para fotos
+              signal: AbortSignal.timeout(60000)
             });
-
             if (!response.ok) throw new Error(`Error HTTP: ${response.status}`);
-            
             const result = await response.json();
-            if (result && result.ok) {
-              exito = true;
-              break;
-            } else {
-              throw new Error(result.message || "Error del servidor");
-            }
+            if (result && result.ok) { exito = true; break; }
+            else { throw new Error(result.message || "Error del servidor"); }
           } catch (error) {
             ultimoError = error;
-            if (intento < 3) await new Promise(r => setTimeout(r, 2000)); // Esperar 2s entre reintentos
+            if (intento < 3) await new Promise(r => setTimeout(r, 2000));
           }
         }
 
         if (exito) {
           // 5. LIMPIEZA DE RESPALDO AL ÉXITO CONFIRMADO
           limpiarBorrador();
-          
           $("#confirmModal").classList.add("hidden");
           mostrarToast("✅ Registro enviado correctamente.");
           form.reset();
@@ -520,15 +427,11 @@ function enviarRegistroConfirmado() {
       }
     })();
   } else {
-    // Modo local
     estudiantes = obtenerEstudiantesLocales();
     if (estudiantes.length === 0) estudiantes = [...DEMO_ESTUDIANTES];
     estudiantes.unshift(registroPendiente);
     guardarEstudiantesLocales(estudiantes);
-    
-    // 5. LIMPIEZA DE RESPALDO TAMBIÉN EN MODO LOCAL
     limpiarBorrador();
-    
     $("#confirmModal").classList.add("hidden");
     form.reset();
     poblarTrayectosPorPrograma("");
@@ -548,8 +451,6 @@ function configurarCamposCondicionales() {
     if (select && !select.dataset.listenerSeguro) { select.addEventListener("change", actualizarDetalleSeguro); select.dataset.listenerSeguro = "true"; }
   });
   actualizarDetalleSeguro();
-  
-  // Garantía: Quitar atributo required de todos los campos de los padres
   const camposPadres = ["madreNombres", "madreTelefonoMovil", "madreTelefonoCantv", "madreCorreo", "madreDireccion", "padreNombres", "padreTelefonoMovil", "padreTelefonoCantv", "padreCorreo", "padreDireccion"];
   camposPadres.forEach(id => { const input = document.getElementById(id); if (input) input.required = false; });
 }
@@ -1076,7 +977,6 @@ function generarId() {
   return `id-${Date.now()}-${Math.floor(Math.random() * 100000)}`;
 }
 
-// Compresión de imagen optimizada al 40% para que pese ~50KB y suba rápido incluso con internet lento
 async function convertirImagenABase64Reducida(file) {
   if (!file) return "";
   return new Promise((resolve, reject) => {
@@ -1093,21 +993,15 @@ async function convertirImagenABase64Reducida(file) {
           const ctx = canvas.getContext("2d");
           ctx.fillStyle = "#ffffff";
           ctx.fillRect(0, 0, targetWidth, targetHeight);
-          
           const sourceRatio = img.width / img.height;
           const targetRatio = targetWidth / targetHeight;
           let sourceX = 0, sourceY = 0, sourceWidth = img.width, sourceHeight = img.height;
-          
           if (sourceRatio > targetRatio) { sourceWidth = img.height * targetRatio; sourceX = (img.width - sourceWidth) / 2; } 
           else { sourceHeight = img.width / targetRatio; sourceY = (img.height - sourceHeight) / 2; }
-          
           ctx.drawImage(img, sourceX, sourceY, sourceWidth, sourceHeight, 0, 0, targetWidth, targetHeight);
-          const base64 = canvas.toDataURL("image/jpeg", 0.4); // Calidad 40%
+          const base64 = canvas.toDataURL("image/jpeg", 0.4); // Calidad 40% para que pese ~50KB y suba rápido
           resolve(base64);
-        } catch (err) {
-          console.error("Error procesando imagen:", err);
-          reject(err);
-        }
+        } catch (err) { console.error("Error procesando imagen:", err); reject(err); }
       };
       img.onerror = () => reject(new Error("Error cargando imagen"));
       img.src = reader.result;
