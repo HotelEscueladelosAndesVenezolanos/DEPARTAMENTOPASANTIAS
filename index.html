@@ -112,14 +112,12 @@ Tamaño: 600 x 800 px. Formato JPG o PNG.</small>
 
             <div class="field">
               <label for="telefono">Teléfono móvil</label>
-              <input type="text" id="telefono" name="telefono" placeholder="04xx-0000000" required />
-
+              <input type="tel" id="telefono" name="telefono" required />
             </div>
 
             <div class="field">
               <label for="telefonoCantv">Teléfono CANTV</label>
-              <input type="text" id="telefonoCantv" name="telefonoCantv" placeholder="02xx-0000000" required />
-
+              <input type="tel" id="telefonoCantv" name="telefonoCantv" />
             </div>
 
             <div class="field">
@@ -140,8 +138,8 @@ Tamaño: 600 x 800 px. Formato JPG o PNG.</small>
         </section>
 
         <section class="form-section">
-          <h3>2. Otro contacto de emergencia</h3>
-          <p class="section-note">Este contacto puede ser Familiar, Amigo o Pareja. (No debe ser ni la Madre, ni el Padre.)</p>
+          <h3>2. Otro contacto</h3>
+          <p class="section-note">Este contacto no debe ser ni la madre ni el padre.</p>
           <div class="form-grid">
             <div class="field">
               <label for="contactoNombre">Nombre del contacto</label>
@@ -167,11 +165,11 @@ Tamaño: 600 x 800 px. Formato JPG o PNG.</small>
 
         <section class="form-section">
           <h3>3. Datos académicos complementarios</h3>
-          <p class="section-note">Indique estudios adicionales si aplica.</p>
+          <p class="section-note">Indique estudios adicionales si aplica. El programa y semestre/trayecto se seleccionan en la sección 8.</p>
           <div class="form-grid">
             <div class="field span-2">
               <label for="otrosEstudios">Otros estudios realizados a nivel técnico o universitario</label>
-              <textarea id="otrosEstudios" name="otrosEstudios" rows="3" placeholder="Ej: TSU, Licenciatura, Diplomado..."></textarea>
+              <textarea id="otrosEstudios" name="otrosEstudios" rows="3" placeholder="Ej: TSU en Turismo, Licenciatura, diplomado..."></textarea>
             </div>
 
             <div class="field">
@@ -306,27 +304,27 @@ Tamaño: 600 x 800 px. Formato JPG o PNG.</small>
           <div class="form-grid">
             <div class="field span-2">
               <label for="madreNombres">Apellidos y nombres de la madre</label>
-              <input type="text" id="madreNombres" name="madreNombres"/>
+              <input type="text" id="madreNombres" name="madreNombres" />
             </div>
 
             <div class="field">
               <label for="madreTelefonoMovil">Teléfono móvil de la madre</label>
-              <input type="tel" id="madreTelefonoMovil" name="madreTelefonoMovil"/>
+              <input type="tel" id="madreTelefonoMovil" name="madreTelefonoMovil" />
             </div>
 
             <div class="field">
               <label for="madreTelefonoCantv">Teléfono CANTV de la madre</label>
-              <input type="tel" id="madreTelefonoCantv" name="madreTelefonoCantv"/>
+              <input type="tel" id="madreTelefonoCantv" name="madreTelefonoCantv" />
             </div>
 
             <div class="field">
               <label for="madreCorreo">E-mail de la madre</label>
-              <input type="email" id="madreCorreo" name="madreCorreo"/>
+              <input type="email" id="madreCorreo" name="madreCorreo" />
             </div>
 
             <div class="field">
               <label for="madreDireccion">Dirección de la madre</label>
-              <input type="text" id="madreDireccion" name="madreDireccion"/>
+              <input type="text" id="madreDireccion" name="madreDireccion" />
             </div>
           </div>
 
@@ -334,27 +332,27 @@ Tamaño: 600 x 800 px. Formato JPG o PNG.</small>
           <div class="form-grid">
             <div class="field span-2">
               <label for="padreNombres">Apellidos y nombres del padre</label>
-              <input type="text" id="padreNombres" name="padreNombres"/>
+              <input type="text" id="padreNombres" name="padreNombres" />
             </div>
 
             <div class="field">
               <label for="padreTelefonoMovil">Teléfono móvil del padre</label>
-              <input type="tel" id="padreTelefonoMovil" name="padreTelefonoMovil"/>
+              <input type="tel" id="padreTelefonoMovil" name="padreTelefonoMovil" />
             </div>
 
             <div class="field">
               <label for="padreTelefonoCantv">Teléfono CANTV del padre</label>
-              <input type="tel" id="padreTelefonoCantv" name="padreTelefonoCantv"/>
+              <input type="tel" id="padreTelefonoCantv" name="padreTelefonoCantv" />
             </div>
 
             <div class="field">
               <label for="padreCorreo">E-mail del padre</label>
-              <input type="email" id="padreCorreo" name="padreCorreo"/>
+              <input type="email" id="padreCorreo" name="padreCorreo" />
             </div>
 
             <div class="field">
               <label for="padreDireccion">Dirección del padre</label>
-              <input type="text" id="padreDireccion" name="padreDireccion"/>
+              <input type="text" id="padreDireccion" name="padreDireccion" />
             </div>
           </div>
         </section>
@@ -818,6 +816,30 @@ Tamaño: 600 x 800 px. Formato JPG o PNG.</small>
                   <label for="editTutorAcademico">Tutor académico</label>
                   <input type="text" id="editTutorAcademico" name="tutorAcademico" />
                 </div>
+                <div class="field">
+                  <label for="editEmpresaAprobada">Empresa aprobada</label>
+                  <select id="editEmpresaAprobada" name="empresaAprobada"></select>
+                </div>
+                <div class="field">
+                  <label for="editResultadoFinal">Resultado final</label>
+                  <select id="editResultadoFinal" name="resultadoFinal"></select>
+                </div>
+                <div class="field">
+                  <label for="editFechaRevision">Fecha de revisión</label>
+                  <input type="date" id="editFechaRevision" name="fechaRevision" />
+                </div>
+                <div class="field">
+                  <label for="editRevisadoPor">Revisado por</label>
+                  <input type="text" id="editRevisadoPor" name="revisadoPor" />
+                </div>
+                <div class="field">
+                  <label for="editHorasRequeridas">Horas requeridas</label>
+                  <input type="number" id="editHorasRequeridas" name="horasRequeridas" min="0" />
+                </div>
+                <div class="field">
+                  <label for="editHorasCumplidas">Horas cumplidas</label>
+                  <input type="number" id="editHorasCumplidas" name="horasCumplidas" min="0" />
+                </div>
                 <div class="field span-2">
                   <label for="editObservacionesDocentes">Observaciones docentes</label>
                   <textarea id="editObservacionesDocentes" name="observacionesDocentes" rows="3"></textarea>
@@ -890,15 +912,19 @@ Tamaño: 600 x 800 px. Formato JPG o PNG.</small>
   <div id="toast" class="toast hidden"></div>
 
   <script src="config.js"></script>
-<script src="app.js?v=3.5"></script>
+  <script src="app.js"></script>
   <script>
-  if ("serviceWorker" in navigator) {
-    window.addEventListener("load", () => {
-      navigator.serviceWorker.register("./sw.js").catch((error) => {
-        console.error("Error registrando Service Worker:", error);
-      });
+ if ("serviceWorker" in navigator) {
+
+    window.addEventListener("load", async () => {
+
+        const registro = await navigator.serviceWorker.register("./sw.js");
+
+        registro.update();
+
     });
-  }
+
+}
 </script>
 </body>
 </html>
