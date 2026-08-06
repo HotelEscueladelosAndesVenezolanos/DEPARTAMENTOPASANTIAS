@@ -535,25 +535,52 @@ function configurarFormulario() {
     event.preventDefault();
 
     try {
+
       mostrarToast("Preparando vista previa...");
 
       const fotoInput = $("#fotoInput");
-      const fotoBase64 = await convertirImagenABase64Reducida(fotoInput.files[0]);
 
-      $("#fotoBase64").value = fotoBase64 || "";
-      $("#fotoFileName").value = fotoInput.files[0]?.name || "";
+      const fotoBase64 = fotoInput?.files?.length
+        ? await convertirImagenABase64Reducida(fotoInput.files[0])
+        : "";
+
+      if ($("#fotoBase64")) {
+        $("#fotoBase64").value = fotoBase64;
+      }
+
+      if ($("#fotoFileName")) {
+        $("#fotoFileName").value = fotoInput?.files?.[0]?.name || "";
+      }
 
       const datos = obtenerDatosFormulario(form);
+
       datos.id = generarId();
       datos.fechaRegistro = new Date().toISOString();
-      datos.fotoUrl = fotoBase64 || "";
+      datos.fotoUrl = fotoBase64;
+
+      console.log("DATOS:", datos);
 
       registroPendiente = normalizarEstudiante(datos);
+
+      console.log("REGISTRO:", registroPendiente);
+
       abrirConfirmacion(registroPendiente);
+
     } catch (error) {
+
       console.error(error);
-      mostrarToast("Ocurrió un error al preparar la información.");
+
+      alert(
+        "ERROR:\n\n" +
+        error.message +
+        "\n\nSTACK:\n\n" +
+        error.stack
+      );
+
+      mostrarToast(error.message);
+
     }
+
   });
 
   $("#btnActualizar")?.addEventListener("click", cargarEstudiantes);
