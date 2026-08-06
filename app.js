@@ -465,12 +465,16 @@ function itemConfirmacion(label, value) { return `<div class="confirm-item"><spa
 // ==========================================
 function enviarRegistroConfirmado() {
   const form = $("#studentForm");
-  if (!registroPendiente) { mostrarToast("No hay información pendiente por enviar."); return; }
+  if (!registroPendiente) {
+    mostrarToast("No hay información pendiente por enviar.");
+    return;
+  }
 
   if (apiConfigurada()) {
     const btnEnviar = $("#btnEnviarConfirmado");
     const textoOriginal = btnEnviar ? btnEnviar.textContent : 'Enviar';
     
+    // 1. Bloquear botón
     if (btnEnviar) {
       btnEnviar.disabled = true;
       btnEnviar.textContent = 'Enviando, por favor espere...';
@@ -480,7 +484,7 @@ function enviarRegistroConfirmado() {
 
     (async () => {
       try {
-        // VALIDACIÓN CRÍTICA: Asegurar que TODOS los campos existan, incluso si están vacíos.
+        // 2. Preparar datos asegurando que no haya undefined
         const datosEnvio = {
           action: 'register',
           id: registroPendiente.id,
@@ -490,27 +494,30 @@ function enviarRegistroConfirmado() {
           timestamp: new Date().toISOString()
         };
 
-        ALL_FIELDS.forEach(field => {
-          const val = registroPendiente[field];
-          datosEnvio[field] = (val !== undefined && val !== null) ? String(val).trim() : "";
-        });
+        // Asegurar que TODOS los campos existan (evita corrimiento de columnas)
+        if (typeof ALL_FIELDS !== "undefined") {
+          ALL_FIELDS.forEach(field => {
+            const val = registroPendiente[field];
+            datosEnvio[field] = (val !== undefined && val !== null) ? String(val).trim() : "";
+          });
+        }
 
         let exito = false;
-        let ultimoError = null;
 
-        // 3 reintentos automáticos ante fallos de red
+        // 3. Reintentos
         for (let intento = 1; intento <= 3; intento++) {
           try {
             if (!navigator.onLine) throw new Error('Sin conexión a internet');
             
+            console.log("Intento de envío:", intento);
+            
             const response = await fetch(CONFIG.APPS_SCRIPT_URL, {
-  method: 'POST',
-  body: JSON.stringify(datosEnvio),
-  headers: { 
-    'Content-Type': 'text/plain;charset=utf-8' // ⚠️ ESTO ES OBLIGATORIO, NO LO CAMBIES
-  },
-  signal: AbortSignal.timeout(60000)
-});
+              method: 'POST',
+              body: JSON.stringify(datosEnvio),
+              // 🔴 ESTA LÍNEA ES LA QUE ARREGLA EL ERROR CORS 🔴
+              headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+              signal: AbortSignal.timeout(60000)
+            });
 
             if (!response.ok) throw new Error(`Error HTTP: ${response.status}`);
             
@@ -522,29 +529,30 @@ function enviarRegistroConfirmado() {
               throw new Error(result.message || "Error del servidor");
             }
           } catch (error) {
-            ultimoError = error;
-            if (intento < 3) await new Promise(r => setTimeout(r, 2000)); // Esperar 2s entre reintentos
+            console.warn("Fallo en intento", intento, error);
+            if (intento < 3) await new Promise(r => setTimeout(r, 2000));
           }
         }
 
         if (exito) {
-          limpiarBorrador(); // Solo se limpia si el envío fue exitoso
+          localStorage.removeItem("hotelEscuelaPasantias_draft_v1");
           $("#confirmModal").classList.add("hidden");
           mostrarToast("✅ Registro enviado correctamente.");
           form.reset();
-          poblarTrayectosPorPrograma("");
+          if (typeof poblarTrayectosPorPrograma === "function") poblarTrayectosPorPrograma("");
           registroPendiente = null;
-          if (dashboardUnlocked) setTimeout(() => cargarEstudiantes(), 1800);
+          if (typeof dashboardUnlocked !== "undefined" && dashboardUnlocked && typeof cargarEstudiantes === "function") {
+            setTimeout(() => cargarEstudiantes(), 1800);
+          }
         } else {
           mostrarToast("❌ Error al enviar. Verifica tu internet e intenta de nuevo.");
-          console.error("Último error de envío:", ultimoError);
         }
       } catch (error) {
-        console.error("Error crítico al enviar:", error);
+        console.error("Error crítico:", error);
         const errorMsg = error instanceof Error ? error.message : String(error);
         mostrarToast("Error inesperado: " + errorMsg);
       } finally {
-        // Reactivar botón siempre, para permitir nuevos intentos si falló
+        // 4. Reactivar botón siempre
         if (btnEnviar) {
           btnEnviar.disabled = false;
           btnEnviar.textContent = textoOriginal;
@@ -554,16 +562,19 @@ function enviarRegistroConfirmado() {
       }
     })();
   } else {
-    estudiantes = obtenerEstudiantesLocales();
-    if (estudiantes.length === 0) estudiantes = [...DEMO_ESTUDIANTES];
-    estudiantes.unshift(registroPendiente);
-    guardarEstudiantesLocales(estudiantes);
-    limpiarBorrador();
+    // Modo local
+    if (typeof obtenerEstudiantesLocales === "function") {
+      let estudiantesLocales = obtenerEstudiantesLocales();
+      if (estudiantesLocales.length === 0 && typeof DEMO_ESTUDIANTES !== "undefined") estudiantesLocales = [...DEMO_ESTUDIANTES];
+      estudiantesLocales.unshift(registroPendiente);
+      if (typeof guardarEstudiantesLocales === "function") guardarEstudiantesLocales(estudiantesLocales);
+    }
+    localStorage.removeItem("hotelEscuelaPasantias_draft_v1");
     $("#confirmModal").classList.add("hidden");
     form.reset();
-    poblarTrayectosPorPrograma("");
+    if (typeof poblarTrayectosPorPrograma === "function") poblarTrayectosPorPrograma("");
     registroPendiente = null;
-    renderizarTodo();
+    if (typeof renderizarTodo === "function") renderizarTodo();
     mostrarToast("Registro guardado en modo local.");
   }
 }
