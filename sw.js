@@ -1,4 +1,4 @@
-const CACHE_NAME = "sistema-pasantias-v4"; // Incrementa la versión para forzar actualización
+const CACHE_NAME = "sistema-pasantias-v4.1"; // Incrementa la versión para forzar actualización
 const STATIC_FILES = [
   "./index.html",
   "./styles.css",
