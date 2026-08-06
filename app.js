@@ -933,8 +933,12 @@ function obtenerDatosFormulario(form) {
   const datos = {};
 
   for (const [key, value] of formData.entries()) {
-    datos[key] = typeof value === "string" ? value.trim() : value;
+    datos[key] = typeof value === "string"
+      ? value.trim()
+      : value;
   }
+
+  console.log(datos);
 
   return datos;
 }
@@ -952,22 +956,23 @@ function guardarEstudiantesLocales(data) {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
 }
 
-function normalizarEstudiante(item) {
+function normalizarEstudiante(item = {}) {
+
   const base = {
     id: item.id || generarId(),
     fechaRegistro: item.fechaRegistro || ""
   };
 
-  ALL_FIELDS.forEach((field) => {
-    base[field] = item[field] || "";
+  if (typeof ALL_FIELDS === "undefined") {
+    throw new Error("ALL_FIELDS no existe");
+  }
+
+  ALL_FIELDS.forEach(field => {
+    base[field] = item[field] ?? "";
   });
 
-  base.fotoUrl = item.fotoUrl || item.foto || "";
+  base.fotoUrl = item.fotoUrl || "";
   base.estadoProceso = base.estadoProceso || "Registrado";
-  base.empresaAprobada = base.empresaAprobada || "En revisión";
-  base.horasRequeridas = base.horasRequeridas || "320";
-  base.horasCumplidas = base.horasCumplidas || "0";
-  base.resultadoFinal = base.resultadoFinal || "Pendiente";
 
   return base;
 }
