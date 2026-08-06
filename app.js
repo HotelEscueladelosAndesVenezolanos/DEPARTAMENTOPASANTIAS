@@ -504,11 +504,13 @@ function enviarRegistroConfirmado() {
             if (!navigator.onLine) throw new Error('Sin conexión a internet');
             
             const response = await fetch(CONFIG.APPS_SCRIPT_URL, {
-              method: 'POST',
-              body: JSON.stringify(datosEnvio),
-              headers: { 'Content-Type': 'text/plain;charset=utf-8' }, // Evita demoras de CORS preflight
-              signal: AbortSignal.timeout(60000) // 60 segundos de espera generosa
-            });
+  method: 'POST',
+  body: JSON.stringify(datosEnvio),
+  headers: { 
+    'Content-Type': 'text/plain;charset=utf-8' // ⚠️ ESTO ES OBLIGATORIO, NO LO CAMBIES
+  },
+  signal: AbortSignal.timeout(60000)
+});
 
             if (!response.ok) throw new Error(`Error HTTP: ${response.status}`);
             
