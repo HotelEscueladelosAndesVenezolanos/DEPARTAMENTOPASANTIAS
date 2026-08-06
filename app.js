@@ -560,11 +560,18 @@ function configurarFormulario() {
 
       console.log("DATOS:", datos);
 
-      registroPendiente = normalizarEstudiante(datos);
+  registroPendiente = normalizarEstudiante(datos);
 
-      console.log("REGISTRO:", registroPendiente);
+console.log("1");
+console.log(registroPendiente);
 
-      abrirConfirmacion(registroPendiente);
+console.log("2");
+alert("Antes de abrirConfirmacion");
+
+abrirConfirmacion(registroPendiente);
+
+console.log("3");
+alert("Después de abrirConfirmacion");
 
     } catch (error) {
 
